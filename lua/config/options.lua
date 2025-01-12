@@ -53,6 +53,9 @@ opt.expandtab = true -- Use spaces instead of tabs
 opt.backup = false -- Disable backup files
 opt.writebackup = false -- Disable write backups
 opt.swapfile = false -- Disable swap files
+opt.backupdir = { ".backup/", "~/.backup/", "/tmp//" } -- Directories for backup files
+opt.directory = { ".swp/", "~/.swp/", "/tmp//" } -- Directories for swap files
+opt.undodir = { ".undo/", "~/.undo/", "/tmp//" } -- Directories for undo files
 
 -- Grep program
 opt.grepprg = "rg --vimgrep" -- Use ripgrep for the :grep command
