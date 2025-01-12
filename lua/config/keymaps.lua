@@ -45,3 +45,7 @@ keymap.set("v", "<leader>p", '"_dP')
 
 -- Close all other windows
 keymap.set("n", "<leader>o", ":only<CR>", { silent = true })
+
+-- Close all buffers except the current one
+-- https://stackoverflow.com/questions/4545275/vim-close-all-buffers-but-this-one
+keymap.set("n", "<leader>bd", ":%bd|e#|bd#<CR>", { silent = true })
