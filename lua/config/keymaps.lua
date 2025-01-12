@@ -68,3 +68,7 @@ keymap.set("v", "<C-r><C-r>", '"hy:%s/<C-r>h//gc<left><left><left>')
 -- Quickfix navigation using space j and space k
 keymap.set("n", "<space>j", ":cnext<CR>zz", { silent = true })
 keymap.set("n", "<space>k", ":cprevious<CR>zz", { silent = true })
+
+-- FzfLua
+keymap.set("n", "<space>ll", ":FzfLua lines<cr>", { silent = true })
+keymap.set("n", "<leader>[", ":FzfLua files<cr>", { silent = true })
