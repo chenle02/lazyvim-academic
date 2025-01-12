@@ -72,3 +72,7 @@ keymap.set("n", "<space>k", ":cprevious<CR>zz", { silent = true })
 -- FzfLua
 keymap.set("n", "<space>ll", ":FzfLua lines<cr>", { silent = true })
 keymap.set("n", "<leader>[", ":FzfLua files<cr>", { silent = true })
+
+-- Buffer nevigations
+-- Navigate to the previous buffer
+keymap.set("n", "<leader>]", ":bp<CR>", { silent = true })
