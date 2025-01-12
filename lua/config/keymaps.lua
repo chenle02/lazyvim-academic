@@ -49,3 +49,10 @@ keymap.set("n", "<leader>o", ":only<CR>", { silent = true })
 -- Close all buffers except the current one
 -- https://stackoverflow.com/questions/4545275/vim-close-all-buffers-but-this-one
 keymap.set("n", "<leader>bd", ":%bd|e#|bd#<CR>", { silent = true })
+
+-- Move around in insert mode
+keymap.set("i", "<C-h>", "<Left>")
+keymap.set("i", "<C-l>", "<Right>")
+-- keymap.set("i", "<C-j>", "<C-o>gj")
+-- keymap.set("i", "<C-k>", "<C-o>gk")
+keymap.set("i", "<C-d>", "<End>")
