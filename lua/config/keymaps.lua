@@ -56,3 +56,11 @@ keymap.set("i", "<C-l>", "<Right>")
 -- keymap.set("i", "<C-j>", "<C-o>gj")
 -- keymap.set("i", "<C-k>", "<C-o>gk")
 keymap.set("i", "<C-d>", "<End>")
+
+-- Yank file's directory path to clipboard
+keymap.set("n", "yf", ":let @+=expand('%:p:h')<CR>")
+
+-- Visual replace/substitute the selected part
+-- register h will be used for this purpose
+keymap.set("v", "<C-r>", '"hy:bufdo %s/<C-r>h//gc<left><left><left>')
+keymap.set("v", "<C-r><C-r>", '"hy:%s/<C-r>h//gc<left><left><left>')
