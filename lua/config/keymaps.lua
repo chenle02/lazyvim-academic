@@ -64,3 +64,7 @@ keymap.set("n", "yf", ":let @+=expand('%:p:h')<CR>")
 -- register h will be used for this purpose
 keymap.set("v", "<C-r>", '"hy:bufdo %s/<C-r>h//gc<left><left><left>')
 keymap.set("v", "<C-r><C-r>", '"hy:%s/<C-r>h//gc<left><left><left>')
+
+-- Quickfix navigation using space j and space k
+keymap.set("n", "<space>j", ":cnext<CR>zz", { silent = true })
+keymap.set("n", "<space>k", ":cprevious<CR>zz", { silent = true })
