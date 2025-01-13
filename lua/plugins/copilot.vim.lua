@@ -5,9 +5,9 @@ return {
     vim.g.copilot_no_tab_map = true
 
     -- Remap Copilot's accept function to `<C-l>`
-    vim.api.nvim_set_keymap("i", "<C-l>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+    vim.api.nvim_set_keymap("i", "<tab>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
 
-    -- Disable Treesitter conflict
+    -- Disable Treesitter conflict, if you are using Treesitter
     vim.g.copilot_no_treesitter = true
   end,
 }
