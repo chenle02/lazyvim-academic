@@ -23,10 +23,10 @@ function! RunLuaLatex(TexFileName)
   let bibfile=split(a:TexFileName,"\\.")[0] . "_biber.bib"
   " echom bibfile
   if filereadable(bibfile)
-    let execstr="!ctags -R --options=/home/lechen/Dropbox/mydotfiles/ctags/ctags_latex *.tex " . bibfile
+    let execstr = "!ctags -R --options=" . stdpath('config') . "/tags/ctags_latex" . " *.tex " . bibfile
     silent exec execstr
   elseif filereadable("All.bib")
-    let execstr="!ctags -R --options=/home/lechen/Dropbox/mydotfiles/ctags/ctags_latex *.tex All.bib"
+    let execstr = "!ctags -R --options=" . stdpath('config') . "/tags/ctags_latex *.tex All.bib"
     silent exec execstr
   else
     echom "No bib files and ctags has not run~! -- Le Chen"
