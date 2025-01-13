@@ -18,6 +18,14 @@ return {
       vim.g.snips_author = "Le Chen"
       vim.g.snips_email = "chenle02@gmail.com"
       vim.g.snips_github = "https://github.com/chenle02"
+
+      -- Keybinding for editing snippets
+      vim.api.nvim_set_keymap(
+        "n",
+        "<leader>ee",
+        ":UltiSnipsEdit<CR>",
+        { noremap = true, silent = true, desc = "Edit UltiSnips" }
+      )
     end,
   },
   {

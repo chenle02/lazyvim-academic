@@ -12,3 +12,5 @@ my_vim
 lazy-lock.json
 lua/plugins/$HOME/.local/share/nvim
 $HOME/.local/share/nvim
+
+my_snippets/$HOME/.local/share/nvim
