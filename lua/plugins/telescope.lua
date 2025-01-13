@@ -9,7 +9,7 @@ return {
     { "nvim-telescope/telescope-frecency.nvim", dependencies = { "tami5/sqlite.lua" } }, -- Frecency support
     { "mfussenegger/nvim-dap" }, -- Required for Telescope DAP
     { "nvim-telescope/telescope-dap.nvim" }, -- Telescope DAP extension
-    { "nvim-telescope/telescope-github.nvim" }, -- GitHub extension
+    { "nvim-telescope/telescope-github.nvim" }, -- GitHub extension, gh
     { "nvim-telescope/telescope-media-files.nvim" }, -- Preview media files
     { "dhruvmanila/telescope-bookmarks.nvim" }, -- Bookmark support
     { "jvgrootveld/telescope-zoxide" }, -- Zoxide integration
