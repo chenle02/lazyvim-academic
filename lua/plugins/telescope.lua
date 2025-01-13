@@ -13,6 +13,8 @@ return {
     { "nvim-telescope/telescope-media-files.nvim" }, -- Preview media files
     { "dhruvmanila/telescope-bookmarks.nvim" }, -- Bookmark support
     { "jvgrootveld/telescope-zoxide" }, -- Zoxide integration
+    { "nvim-telescope/telescope-bibtex.nvim" },
+    { "ElPiloto/telescope-vimwiki.nvim" },
   },
   config = function()
     local telescope = require("telescope")
@@ -125,6 +127,7 @@ return {
     telescope.load_extension("media_files")
     telescope.load_extension("zoxide")
     telescope.load_extension("bookmarks")
+    telescope.load_extension("bibtex")
 
     -- Keymaps for Telescope
     local keymap = vim.api.nvim_set_keymap
