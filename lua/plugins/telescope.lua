@@ -128,6 +128,7 @@ return {
     telescope.load_extension("zoxide")
     telescope.load_extension("bookmarks")
     telescope.load_extension("bibtex")
+    telescope.load_extension("vimwiki")
 
     -- Keymaps for Telescope
     local keymap = vim.api.nvim_set_keymap
