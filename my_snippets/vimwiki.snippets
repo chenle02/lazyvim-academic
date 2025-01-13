@@ -1,0 +1,55 @@
+priority -50\
+
+#################################
+# Snippets for the vimwiki   #
+# By Le Chen 										#
+#################################
+
+
+snippet tsk "task item" b
+* [ ] $1. (`date -u +"%Y-%m-%d"` 18:00)
+endsnippet
+
+# snippet bsk "bigskip"
+# \bigskip
+# endsnippet
+
+# https://github.com/SirVer/ultisnips/issues/520
+# pre_expand "snip.buffer[0:0] = ['This goes to the top of the file']"
+# snippet foo
+# This goes to the trigger position.
+# endsnippet
+
+
+
+# snippet tsk "task item" b {{{
+snippet myzoomAU "task item" b#{{{
+Le Chen is inviting you to a scheduled Auburn University Zoom e-meeting. If you're a new participant, we have a quick start guide here: https://aub.ie/zoomquickstart
+
+
+Topic: Le Chen's Personal Meeting Room
+
+Join from PC, Mac, Linux, iOS or Android: https://auburn.zoom.us/j/8141875411
+Connect using Computer/Device audio if possible.
+
+Or Telephone: Meeting ID: 814 187 5411
+  Dial: +1 646 876 9923 (US Toll)
+    or +1 301 715 8592 (US Toll)
+
+
+Or an H.323/SIP room system:
+  H.323: 162.255.37.11 (US West) or 162.255.36.11 (US East)
+  Meeting ID: 814 187 5411
+
+  SIP: 8141875411@zoomcrc.com
+endsnippet
+#}}}
+
+# snippet tsk "task item" b {{{
+snippet git "git link" b#{{{
+https://github.com/chenle02/R0_Nick/commit/5b0c389e/UpdateToInvMeasure.tex#L100
+endsnippet
+#}}}
+
+
+# vim:ft=snippets:

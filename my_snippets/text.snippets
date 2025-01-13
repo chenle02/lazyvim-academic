@@ -1,0 +1,49 @@
+snippet email "Email Template" b
+ Test... $0, another thing to be done
+ ${2:VISUAL}
+First time to be $1
+endsnippet
+
+snippet case
+case ${1:word} in
+    ${2:pattern} ) $0;;
+esac
+endsnippet
+
+snippet q
+Your age: ${1|<18,18~60,>60|}
+Your height: ${2|<120cm,120cm~180cm,>180cm|}
+endsnippet
+
+snippet zoomAU "My Zoom Link for Emory"
+
+Le Chen is inviting you to a scheduled Auburn University Zoom e-meeting. If you're a new participant, we have a quick start guide here: https://aub.ie/zoomquickstart
+
+Topic: Le Chen's Personal Meeting Room
+
+Join from PC, Mac, Linux, iOS or Android:
+
+  https://auburn.zoom.us/j/8141875411
+
+Connect using Computer/Device audio if possible.
+
+Or Telephone: Meeting ID: 814 187 5411
+  Dial: +1 646 876 9923 (US Toll)
+  or +1 301 715 8592 (US Toll)
+
+Or an H.323/SIP room system:
+  H.323: 162.255.37.11 (US West) or 162.255.36.11 (US East)
+  Meeting ID: 814 187 5411
+
+SIP: 8141875411@zoomcrc.com
+
+endsnippet
+
+snippet zoomHtml "My Zoom html code"
+<a href="https://auburn.zoom.us/j/8141875411">https://auburn.zoom.us/j/8141875411</a>
+endsnippet
+
+snippet zoomID "My Zoom ID"
+8141875411
+endsnippet
+# vim:ft=snippets:

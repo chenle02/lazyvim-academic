@@ -1,0 +1,411 @@
+priority -50
+
+global !p
+import vim
+
+# Tests for the existence of a variable declared by Vim's filetype detection
+# suggesting the type of shell script of the current file
+def testShell(scope, shell):
+	return vim.eval("exists('" + scope + ":is_" + shell + "')")
+
+# Loops over the possible variables, checking for global variables
+# first since they indicate an override by the user.
+def getShell():
+	for scope in ["g", "b"]:
+		for shell in ["bash", "posix", "sh", "kornshell"]:
+			if testShell(scope, shell) == "1":
+				if shell == "kornshell":
+					return "ksh"
+				if shell == "posix":
+					return "sh"
+				return shell
+	return "sh"
+endglobal
+
+###########################################################################
+#       TextMate Snippets       #
+###########################################################################
+
+# {{{ snippet #! "#!/usr/bin/env (!env)" b
+snippet #! "#!/usr/bin/env (!env)" b
+`!p snip.rv = '#!/usr/bin/env ' + getShell() + "\n" `
+endsnippet
+# }}}
+# {{{ snippet sbash "safe bash options" b
+snippet sbash "safe bash options" b
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+`!p snip.rv ='\n\n' `
+endsnippet
+# }}}
+# {{{ snippet temp "Tempfile" b
+snippet temp "Tempfile" b
+${1:TMPFILE}="$(mktemp -t ${3:--suffix=${4:.SUFFIX}} ${2:`!p
+snip.rv = re.sub(r'[^a-zA-Z]', '_', snip.fn) or "untitled"
+`}.XXXXXX)"
+${5:${6/(.+)/trap "/}${6:rm -f '$${1/.*\s//}'}${6/(.+)/" 0    # EXIT\n/}${7/(.+)/trap "/}${7:rm -f '$${1/.*\s//}'; exit 1}${7/(.+)/" 2  # INT\n/}${8/(.+)/trap "/}${8:rm -f '$${1/.*\s//}'; exit 1}${8/(.+)/" 1 15 # HUP TERM\n/}}
+
+endsnippet
+# }}}
+# {{{ snippet /case|sw(itch)?/ "case .. esac (case)" rb
+snippet /case|sw(itch)?/ "case .. esac (case)" rb
+case ${1:word} in
+	${2:pattern} )
+		${0:${VISUAL}};;
+esac
+endsnippet
+# }}}
+# {{{ snippet elif "elif .. (elif)" b
+snippet elif "elif .. (elif)" b
+elif ${2:[[ ${1:condition} ]]}; then
+	${0:${VISUAL}}
+endsnippet
+# }}}
+# {{{ snippet for "for ... done (for)" b
+snippet for "for ... done (for)" b
+for (( i = 0; i < ${1:10}; i++ )); do
+	${0:${VISUAL}}
+done
+endsnippet
+# }}}
+# {{{ snippet forin "for ... in ... done (forin)" b
+snippet forin "for ... in ... done (forin)" b
+for ${1:i}${2/.+/ in /}${2:words}; do
+	${0:${VISUAL}}
+done
+endsnippet
+# }}}
+# {{{ snippet here "here document (here)"
+snippet here "here document (here)"
+<<-${2:'${1:TOKEN}'}
+	$0
+${1/['"`](.+)['"`]/$1/}
+endsnippet
+# }}}
+# {{{ snippet if "if ... then (if)" b
+snippet if "if ... then (if)" b
+if ${2:[[ ${1:condition} ]]}; then
+	${0:${VISUAL}}
+fi
+endsnippet
+# }}}
+# {{{ snippet until "until ... (done)" b
+snippet until "until ... (done)" b
+until ${2:[[ ${1:condition} ]]}; do
+	${0:${VISUAL}}
+done
+endsnippet
+# }}}
+# {{{ snippet /wh(ile)?/ "while ... (done)" rb
+snippet /wh(ile)?/ "while ... (done)" rb
+while ${2:[[ ${1:condition} ]]}; do
+	${0:${VISUAL}}
+done
+endsnippet
+# }}}
+# This is Le Chen's snippets
+
+#{{{ TestNum "Test if a variable is numeric" g
+snippet TestNum "Test if a variable is numeric" g
+re='^[0-9]+$'
+if ! [[ $yournumber =~ $re ]] ; then
+	echo "Not a number."
+else
+	echo "Is a number."
+fi
+endsnippet
+#}}}
+
+#{{{ TestFile "Test if file exists" g
+snippet TestFile "Test if file exists" g
+if [ -f "$File" ]; then
+	echo "$File exists."
+else
+	echo "$File does not exist."
+fi
+endsnippet
+#}}}
+#{{{ TestFiles "Test if certain files exist" g
+snippet TestFiles "Test if certain files exist" g
+files=$(ls *.pdf 2> /dev/null | wc -l)
+if [ "$files" != "0" ]
+then
+	echo "Exists"
+else
+	echo "None found."
+fi
+endsnippet
+#}}}
+# {{{ front "Front matters" g
+snippet front "Front matters" g
+#!/usr/bin/env bash
+# #!/bin/bash
+if [[ $# -eq 0 ]] || [[ "$1" == "--help" ]]
+then
+	echo ""
+	echo ""
+	echo "Usage: \$0 $1"
+	echo "Work under working directory."
+	echo "by Le CHEN, (chenle02@gmail.com)"
+	echo "`date`"
+	echo ""
+	echo ""
+	exit 1
+fi
+endsnippet
+# }}}
+# {{{ Email "Email Template" g
+snippet Email "Email Template" g
+# Created on `date`
+#!/usr/bin/env bash
+Subject="$1"
+To="$2"
+echo """
+Dear xxx,
+
+The phase I of Test III will start in 10 minutes. Please get you ready for the test. Make sure you have your internet connection good during
+the next hour.
+
+Good luck and enjoy!
+
+Best regards,
+
+Le
+""" > tmp.txt
+email-process tmp.txt
+# neomutt -F ~/.config/mutt/muttrc_gmail \
+neomutt \
+	-s "${Subject}" \
+	-b chenle02@gmail.com \
+	-- $To \
+	< tmp.txt
+
+	# -a File_to_attach \
+	# -c le.chen@emory.edu \
+	# -e "source test.mutt" \
+
+rm tmp.txt
+endsnippet
+# }}}
+# {{{ Email "Email Template" g
+snippet ZipEmail "Email with Zip Files" g
+#!/usr/bin/env bash
+Subject="$1"
+ZipfileNoAppendix="$2"
+To="chenle02@gmail.com"
+zip -r ${ZipfileNoAppendix}.zip \
+  ./file_1.bib \
+  ./file_2.bib \
+  ./file_3.bib \
+  ./file_4.bib
+
+echo """
+Dear xxx,
+
+Can you try this one? All are in one folder.
+
+Thank you very much~!
+
+Best regards,
+
+Le
+""" > tmp.txt
+email-process tmp.txt
+neomutt -F ~/.config/mutt/accounts/2-gmail.muttrc \
+  -s "${Subject}" \
+  -a ./${ZipfileNoAppendix}.zip \
+  -- $To \
+  < tmp.txt
+
+  # -a File_to_attach \
+  # -c le.chen@emory.edu \
+  # -e "source test.mutt" \
+
+rm tmp.txt
+endsnippet
+# }}}
+# {{{ LoopArray "Loop over array of stings" g
+snippet LoopArray "Loop over array of stings" g
+## declare an array variable
+declare -a arr=(
+		"element1"
+		"element2"
+		"element3"
+	)
+
+## now loop through the above array
+for i in "${arr[@]}"
+do
+	echo "$i"
+	# or do whatever with individual element of the array
+done
+endsnippet
+# }}}
+#{{{ LoopFile "loop all lines in a file"
+snippet LoopFile "loop all lines in a file"
+Num=1
+echo "Starting extracting problems ... "
+while IFS= read -r problem
+do
+	practice=$(echo $problem | cut -f1 -d\ )
+	real=$(echo $problem | cut -f2 -d\ )
+	points=$(echo $problem | cut -f3 -d\ )
+	spacing=$(echo $problem | cut -f4 -d\ )
+	echo "Problem $Num from $practice and $real for $points points"
+	./.ExtractProblem.sh $practice "${Num} (${points} points)" >> $PracticeEx
+	./.ExtractProblem.sh $real "${Num} (${points} points)" >> $RealEx
+	./.ExtractProbSol.sh $practice "${Num} (${points} points)" >> $PracticeExSol
+	./.ExtractProbSol.sh $real "${Num} (${points} points)" >> $RealExSol
+	if [ ! -z "$spacing" ]
+	then
+		echo "$spacing" >>$PracticeEx
+		#echo "$spacing" >>$PracticeExSol
+		echo "$spacing" >>$RealEx
+		#echo "$spacing" >>$RealExSol
+	fi
+	let "Num+=1"
+done < temp.txt
+endsnippet
+#}}}
+#{{{ LoopDir Loop all subdirectory of a directory"
+snippet LoopDir "Loop all subdirectory of a directory"
+for d in $(fd --type d ${0:/path/to/the/directory/})
+do
+	if [ -d "$d" ]; then
+		echo "$d"
+	fi
+done
+endsnippet
+#}}}
+#{{{ substring "Substring in a variable"
+snippet substring "Substring in a variable"
+INPUT='someletters_12345_moreleters.ext'
+SUBSTRING=$(echo $INPUT| cut -d'_' -f 2)
+echo $SUBSTRING
+endsnippet
+#}}}
+#{{{ snippet sedExtBtw "Using Sed to extract between two tags"
+snippet sedExtBtw "Using Sed to extract between two tags"
+# https://stackoverflow.com/questions/35445407/removing-lines-between-tags-in-a-text-file
+sed -ne '/\\begin{question}/,/\\end{question}/p' $File
+endsnippet
+#}}}
+#{{{ mysmenu "Using smenu to interact"
+snippet mysmenu "Using smenu to interact"
+Answer=$(smenu -m "Choose one option" -W $':\t\n' <<< "1. Merge Conflicted File\t 2. Delete Conflicted File \t 3. Rename As Conflicted File as Backup \t 4. Skip")
+case "$Answer" in
+		*Merge*)
+				echo "$Answer"
+				# cp $file
+				;;
+		*Delete*)
+				echo "$Answer"
+				;;
+		*Rename*)
+				echo "$Answer"
+				;;
+		*Skip*)
+				echo "$Answer"
+				;;
+esac
+endsnippet
+#}}}
+#{{{ rsync "rysnc"
+snippet rsync "rsync"
+from=...
+to=...
+exclude=...
+rsync -akrzv --copy-links --exclude $exclude $from $to
+endsnippet
+#}}}
+#{{{ Job "Job"
+snippet Job "Job"
+#!/usr/bin/env sh
+
+# Section 5. 11:20--12:10
+# at -f ./Sending_emails_S5_Step1.sh -t 10021110.00
+# echo "./Upload_File.py 6 60 Test_2.pdf Test02-Phase-II-Problems" | at -t 03051800.00
+
+echo "./Email_final.lua Math221.csv " | at -t 05060750.00
+
+echo "../Announcement/Create_Announcement.py ../Announcement/0506_ExamStarts.txt yes" | at -t 05060755.00
+
+echo "../Announcement/Create_Announcement.py ../Announcement/0507_Exam3hourReminder.txt yes" | at -t 05070500.00
+
+echo "../Announcement/Create_Announcement.py ../Announcement/0507_halfhourreminder.txt yes" | at -t 05070730.00
+
+echo "../Announcement/Create_Announcement.py ../Announcement/0507_FinalDone.txt yes" | at -t 05070800.00
+endsnippet
+#}}}
+#{{{  snippet syncAU "Sync to AUS" b
+snippet syncAU "Sync to AUS" b
+#!/usr/bin/env bash
+from=$1
+AURoot="/mnt/Auburn-Server/public_html/"
+pass sudo | sudo -S rsync -akrzv --copy-links --delete $from $AURoot
+endsnippet
+# }}}
+#{{{ scroe "Score script"
+snippet score "Score script"
+#!/usr/bin/env bash
+if [ $# -eq 0 ]
+then
+	echo ""
+	echo "Usage: \$0 [dummy]"
+	echo ""
+	echo " Show help information when there is no dummy argument."
+	echo " Run the file when a dummy argument is given"
+	echo ""
+	echo "Steps: "
+	echo "
+1. Download the lastest score csv file from Canvas.
+2. Make the symbolic link to the latest csv file. The link is called last.csv.
+3. Using xsv, which has been commented out part below, to determine the fields.
+4. Edit eval.awk for the fields and rules.
+5. Edit this file to determine the output filename.
+6. Do not fortet to make a curve of the score whenever needed."
+	echo ""
+	echo "by Le CHEN, (chenle02@gmail.com)"
+	echo "`date`"
+	echo ""
+	echo ""
+	exit 1
+fi
+
+# 1. Explore the csv file.
+# xsv headers last.csv
+#
+# xsv select 1,6-15 last.csv | xsv headers
+#
+# xsv select 1,6-15 last.csv
+
+# 2. Making a symbolic link.
+# rm last.csv
+# ln -s 2021-12-13T0906_Grades-202210_MATH-5870-100.csv last.csv
+
+# 3. Set up the output file name.
+Output="Math5870-100_2021Fall_LeChen_Before_Curve.csv"
+
+# 4. Removing the last record for "Student, Test"
+cp last.csv working.csv
+sed -i "$ d" working.csv
+
+# 5. Working now~!
+awk -f eval.awk working.csv | cut -d"," -f2- > $Output
+
+# 6. Some post process after curving when necessary.
+# cp ./Math5870-100_2021Fall_LeChen_Before_Curve.csv ./Math5870-100_2021Fall_LeChen.csv
+# cp ./Math5870-100_2021Fall_LeChen_Before_Curve.csv Curving.csv
+# # Delete all lines after an empty line
+# sed -i "/^$/Q" Curving.csv
+# xsv headers Curving.csv
+# xsv stats -s 14 Curving.csv
+
+echo ""
+echo "Check $Output"
+echo ""
+echo "Done~!"
+endsnippet
+#}}}
+# vim:ft=snippets:

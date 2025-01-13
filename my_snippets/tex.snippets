@@ -1,0 +1,2713 @@
+# A valid snippet should starts with:
+
+#
+#    snippet trigger_word [ "description" [ options ] ]
+
+#
+#    endsnippet
+#
+# Snippet options:
+#
+#    b - Beginning of line.
+#    i - In-word expansion.
+#    w - Word boundary.
+#    r - Regular expression
+#    e - Custom context snippet
+#    A - Snippet will be triggered automatically, when condition matches.
+#
+# Basic example:
+#
+#    snippet emitter "emitter properties" b
+#    private readonly ${1} = new Emitter<$2>()
+#    public readonly ${1/^_(.*)/$1/}: Event<$2> = this.$1.event
+#    endsnippet
+#
+# Online reference: https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt
+#{{{ global !p
+global !p
+#{{{ Setup for Math
+# texMathZones = ['texMathZone' + x for x in ['A', 'AS', 'B', 'BS', 'C', 'CS', 'D', 'DS', 'E', 'ES', 'F', 'FS', 'G', 'GS', 'H', 'HS', 'I', 'IS', 'J', 'JS', 'K', 'KS', 'L', 'LS', 'DS', 'V', 'W', 'X', 'Y', 'Z', 'AmsA', 'AmsB', 'AmsC', 'AmsD', 'AmsE', 'AmsF', 'AmsG', 'AmsAS', 'AmsBS', 'AmsCS', 'AmsDS', 'AmsES', 'AmsFS', 'AmsGS' ]]
+# texIgnoreMathZones = ['texMathText']
+# The following two lines are from https://github.com/lervag/vimtex/issues/1863
+# texMathZones = ['texMathZone' + x for x in ['', 'X', 'XX', 'Env', 'EnvStarred', 'Ensured']]
+# The following is from https://github.com/lervag/vimtex/issues/2470 after Version Vimtex 2.11
+texMathZones = ['texMathZone' + x for x in ['LI', 'LD', 'TI', 'TD', 'Env', 'EnvStarred', 'Ensured']]
+texIgnoreMathZones = ['texMathTextArg']
+texMathZoneIds = vim.eval('map('+str(texMathZones)+", 'hlID(v:val)')")
+texIgnoreMathZoneIds = vim.eval('map('+str(texIgnoreMathZones)+", 'hlID(v:val)')")
+ignore = texIgnoreMathZoneIds[0]
+#}}}
+#{{{ math()
+def math():
+    synstackids = vim.eval("synstack(line('.'), col('.') - (col('.')>=2 ? 1 : 0))")
+    try:
+        first = next(i for i in reversed(synstackids) if i in texIgnoreMathZoneIds or i in texMathZoneIds)
+        return first != ignore
+    except StopIteration:
+        return False
+# def math():
+#     return True
+#}}}
+#{{{ create_table(snip)
+def create_table(snip):
+  rows = snip.buffer[snip.line].split('x')[0]
+  cols = snip.buffer[snip.line].split('x')[1]
+
+  int_val = lambda string: int(''.join(s for s in string if s.isdigit()))
+
+  rows = int_val(rows)
+  cols = int_val(cols)
+
+  offset = cols + 1
+  old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+
+  snip.buffer[snip.line] = ''
+
+  final_str = '\\renewcommand{\\arraystretch}{1.2}\n' + old_spacing + "\\begin{tabular}{|" + "c|".join(['$' + str(i + 1) for i in range(cols)]) + "c|}\n"
+
+  for i in range(rows):
+    final_str += old_spacing + '\t'
+    final_str += " & ".join(['$' + str(i * cols + j + offset) for j in range(cols)])
+
+    final_str += " \\\\\\\n"
+
+  final_str += old_spacing + "\\end{tabular}\n$0"
+
+  snip.expand_anon(final_str)
+#}}}
+#{{{ add_row(snip)
+def add_row(snip):
+  row_len = int(''.join(s for s in snip.buffer[snip.line] if s.isdigit()))
+  old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+
+  snip.buffer[snip.line] = ''
+
+  final_str = old_spacing
+  final_str += " & ".join(['$' + str(j + 1) for j in range(row_len)])
+  final_str += " \\\\\\"
+
+  snip.expand_anon(final_str)
+#}}}
+endglobal
+#}}}
+
+priority 100
+#{{{ pac "Package" b
+snippet pac "Package" b
+\usepackage[${1:options}]{${2:package}}$0
+endsnippet
+#}}}
+#{{{ texor "Math in hyperref in section title"
+snippet texor "Math in hyperref in section title"
+\texorpdfstring{${1:mathexpression}}{${2:}}$0
+endsnippet
+#}}}
+#{{{ bsk "bigskip"
+snippet bsk "bigskip"
+\bigskip
+endsnippet
+#}}}
+#{{{ ibid "ibid"
+snippet ibid "ibid"
+\textit{ibid}
+endsnippet
+#}}}
+#{{{ vf "vfill"
+snippet vf "vfill"
+\vfill
+endsnippet
+#}}}
+#{{{ ps "vfill"
+snippet ps "vfill"
+\pause
+endsnippet
+#}}}
+#{{{ ni -- noindent
+snippet ni "Non-indented paragraph" b
+\noindent
+$0
+endsnippet
+#}}}
+#{{{ mm "emph"
+snippet mm "emph"
+\emph{$0}
+endsnippet
+#}}}
+#{{{ ii "italic"
+snippet ii "italic"
+\textit{$0}
+endsnippet
+#}}}
+#{{{ etal "italic"
+snippet etal "italic"
+\textit{et al.}
+endsnippet
+#}}}
+#{{{ qd "quad"
+snippet qd "quad" iA
+\quad $0
+endsnippet
+#}}}
+#{{{ qqd "qquad"
+snippet qqd "qquad" iA
+\qquad $0
+endsnippet
+#}}}
+#{{{ lra "leftrightarrow"
+context "math()"
+snippet lra "leftrightarrow" iA
+\leftrightarrow $0
+endsnippet
+#}}}
+#{{{ Lra "Leftrightarrow"
+context "math()"
+snippet Lra "Leftrightarrow" iA
+\Leftrightarrow $0
+endsnippet
+#}}}
+#{{{ LRA "Leftrightarrow"
+context "math()"
+snippet LRA "Longleftrightarrow" iA
+\Longleftrightarrow $0
+endsnippet
+#}}}
+#{{{ ra "rightarrow"
+context "math()"
+snippet righta "rightarrow" iA
+\rightarrow $0
+endsnippet
+#}}}
+#{{{ Ra "Rightarrow"
+context "math()"
+snippet Ra "Rightarrow" iA
+\Rightarrow $0
+endsnippet
+#}}}
+#{{{ RA "Longrightarrow"
+context "math()"
+snippet RA "Longrightarrow" iA
+\Longrightarrow $0
+endsnippet
+#}}}
+#{{{ net "net"
+context "math()"
+snippet net "net" iA
+\langle x_\alpha\rangle$0
+endsnippet
+#}}}
+
+priority 100
+#{{{ texm "\textcolor{magenta}{}"
+snippet texm "\textcolor{magenta}{}"
+\textcolor{magenta}{$0}
+endsnippet
+#}}}
+
+priority 500
+#{{{ ef "\eqref"
+snippet eff "\eqref"
+~\eqref{${1:${VISUAL}}}$0
+endsnippet
+#}}}
+#{{{ dp "\displaystyle"
+snippet dp "\displaystyle"
+\displaystyle $0
+endsnippet
+#}}}
+#{{{ rf "\ref"
+snippet rf "\ref"
+~\ref{${1:${VISUAL}}}$0
+endsnippet
+#}}}
+#{{{ lb "\label"
+snippet lb "\label"
+\label{${1:${VISUAL}}}$0
+endsnippet
+#}}}
+#{{{ cit "\cite{}"
+snippet cit "\cite{}"
+~\cite{${1}}
+endsnippet
+#}}}
+# The following is for testing
+snippet wow
+`!p
+vim.command('normal gElr~')
+`\cite{${1}}
+endsnippet
+#{{{ dm "Math \[ ... \] " wA
+snippet dm "Math" wA
+\[
+${1:${VISUAL}}
+.\] $0
+endsnippet
+#}}}
+#{{{ ali "align*" bA
+snippet ali "Align" bA
+\begin{align*}
+  ${1:${VISUAL}}
+\end{align*}
+endsnippet
+#}}}
+#{{{ ee "equation*" bA
+snippet ee "equation*" bA
+\begin{equation*}
+  ${1:${VISUAL}}
+\end{equation*}
+endsnippet
+#}}}
+#{{{ mk "Math $...$" wA
+snippet mk "Math" wA
+$${1}$`!p
+if t[2] and t[2][0] not in [',', '.', '?', '-', ' ']:
+  snip.rv = ' '
+else:
+  snip.rv = ''
+`$2
+endsnippet
+#}}}
+#{{{ beg "begin{} / end{}" bA
+snippet beg "begin{} / end{}" bA
+\\begin{$1}
+  $0
+\\end{$1}
+endsnippet
+#}}}
+#{{{ bigfun "Big function" iA
+snippet bigfun "Big function" iA
+\begin{align*}
+  $1: $2 &\longrightarrow $3 \\\\
+  $4 &\longmapsto $1($4) = $0
+\end{align*}
+endsnippet
+#}}}
+#{{{ table
+snippet table "Table environment" b
+\begin{table}[${1:htpb}]
+  \centering
+  \caption{${2:caption}}
+  \label{tab:${3:label}}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{${5:c}}
+  $0${5/((?<=.)c|l|r)|./(?1: & )/g}
+  \end{tabular}
+\end{table}
+endsnippet
+#}}}
+#{{{ ScreenShot "Comment on screen shot figure"
+snippet ScreenShot "Comment on screen shot figure"
+\begin{center}
+  \begin{tikzpicture}[scale=1, transform shape]
+    \node (fig) at (0,0) {\includegraphics[scale=0.25]{${1:Filename.jpg} }};
+    \pause
+    \draw[red] (-3,-0.33) rectangle ++(6,+3) node [right] {Group $X$};
+    \pause
+    \draw[red] (-3,-0.36) rectangle ++(6,-3) node [right] {Group $Y$};
+  \end{tikzpicture}
+\end{center}
+endsnippet
+#}}}
+#{{{ fig
+snippet fig "Figure environment" b
+\begin{figure}[${1:htpb}]
+  \centering
+  ${2:\includegraphics[width=0.8\textwidth]{$3}}
+  \caption{${4:$3}}
+  \label{fig:${5:${3/\W+/-/g}} }
+\end{figure}
+endsnippet
+#}}}
+#{{{ enum
+snippet enum "Enumerate" bA
+\begin{enumerate}
+  \item $0
+\end{enumerate}
+endsnippet
+#}}}
+#{{{ item
+snippet item "Itemize" bA
+\begin{itemize}
+  \item $0
+\end{itemize}
+endsnippet
+#}}}
+#{{{ desc
+snippet desc "Description" b
+\begin{description}
+  \item[$1] $0
+\end{description}
+endsnippet
+#}}}
+#{{{ tr#, " & & \\" where # is a number
+pre_expand "create_table(snip)"
+snippet "gentbl(\d+)x(\d+)" "Generate table of *width* by *height*" r
+endsnippet
+#}}}
+#{{{ gentbl#x#, "begin{tabular}...\end{tabular}" where # is a number
+pre_expand "add_row(snip)"
+snippet "tr(\d+)" "Add table row of dimension ..." r
+endsnippet
+#}}}
+#{{{ roman "\pagenumbering{roman}" b
+snippet roman "pagenumbering{roman}" b
+\pagenumbering{roman}
+endsnippet
+#}}}
+
+# Math input{{{ The following are for math equations.
+context "math()"
+#{{{ => "implies" Ai
+snippet => "implies" Ai
+\implies
+endsnippet
+#}}}
+context "math()"
+#{{{ =< "implied by" Ai
+snippet =< "implied by" Ai
+\impliedby
+endsnippet
+#}}}
+context "math()"
+#{{{ iff "iff" Ai
+snippet iff "iff" Ai
+\iff
+endsnippet
+#}}}
+context "math()"
+#{{{ vphi "\varphi"
+snippet vphi "\varphi"
+\varphi
+endsnippet
+#}}}
+context "math()"
+#{{{ vec "vec" wA
+snippet vec "vec" wA
+\vec{${1:${VISUAL} }} $0
+endsnippet
+#}}}
+priority 5000
+context "math()"
+#{{{ wtd "widetilde" wA
+snippet wtd "widetilde" wA
+\widetilde{${1:${VISUAL}} } $0
+endsnippet
+#}}}
+context "math()"
+#{{{ wht "widehat" wA
+snippet wht "widehat" wA
+\widehat{${1:${VISUAL}}}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ "([a-zA-Z])hat" "widehat" riA
+snippet "([a-zA-Z])wht" "hat" riA
+\widehat{`!p snip.rv=match.group(1)`}
+endsnippet
+#}}}
+context "math()"
+#{{{ // "Fraction" iA
+snippet // "Fraction" iA
+\\frac{$1}{$2}$0
+endsnippet
+#}}}
+priority 1000
+context "math()"
+#{{{ / "Fraction" i
+snippet / "Fraction" i
+\\frac{${VISUAL}}{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ '((\d+)|(\d*)(\\)?([A-Za-z]+)((\^|_)(\{\d+\}|\d))*)/' "symbol frac" wrA
+snippet '((\d+)|(\d*)(\\)?([A-Za-z]+)((\^|_)(\{\d+\}|\d))*)/' "symbol frac" wrA
+\\frac{`!p snip.rv = match.group(1)`}{$1}$0
+endsnippet
+#}}}
+priority 1000
+context "math()"
+#{{{ '^.*\)/' "() frac" wrA
+snippet '^.*\)/' "() frac" wrA
+`!p
+stripped = match.string[:-1]
+depth = 0
+i = len(stripped) - 1
+while True:
+  if stripped[i] == ')': depth += 1
+  if stripped[i] == '(': depth -= 1
+  if depth == 0: break;
+  i-=1
+snip.rv = stripped[0:i] + "\\frac{" + stripped[i+1:-1] + "}"
+`{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ '([A-Za-z])(\d)' "auto subscript" wrA
+snippet '([A-Za-z])(\d)' "auto subscript" wrA
+`!p snip.rv = match.group(1)`_`!p snip.rv = match.group(2)`
+endsnippet
+#}}}
+context "math()"
+#{{{ '([A-Za-z])_(\d\d)' "auto subscript2" wrA
+snippet '([A-Za-z])_(\d\d)' "auto subscript2" wrA
+`!p snip.rv = match.group(1)`_{`!p snip.rv = match.group(2)`}
+endsnippet
+#}}}
+context "math()"
+#{{{ != "equals" iA
+snippet != "equals" iA
+\neq
+endsnippet
+#}}}
+context "math()"
+#{{{ ceil "ceil" iA
+snippet ceil "ceil" iA
+\left\lceil $1 \right\rceil $0
+endsnippet
+#}}}
+context "math()"
+#{{{ floor "floor" iA
+snippet floor "floor" iA
+\left\lfloor $1 \right\rfloor$0
+endsnippet
+#}}}
+context "math()"
+#{{{ pmat "pmat" iA
+snippet pmat "pmat" iA
+\begin{pmatrix} $1 \end{pmatrix} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ cvec "column vector" iA
+snippet cvec "column vector" iA
+\begin{pmatrix} ${1:x}_${2:1}\\\\ \vdots\\\\ $1_${2:n} \end{pmatrix}
+endsnippet
+#}}}
+context "math()"
+#{{{ bmat "bmat" iA
+snippet bmat "bmat" iA
+\begin{bmatrix} $1 \end{bmatrix} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ () "left( right)" iA
+snippet () "left( right)" iA
+\left(${1:${VISUAL}}\right)$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr "left( right)" i
+snippet lr "left( right)" i
+\left(${1:${VISUAL}}\right)$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr( "left( right)" i
+snippet lr( "left( right)" i
+\left( ${1:${VISUAL}} \right) $0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr\| "left\| right\|" i
+snippet lr\| "left\| right\|" i
+\left\|${1:${VISUAL}}\right\|$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr| "left| right|" i
+snippet lr| "left| right|" i
+\lvert${1:${VISUAL}}\rvert$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr{ "left\{ right\}" i
+snippet lr{ "left\{ right\}" i
+\left\\{${1:${VISUAL}}\right\\}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lrb "left\{ right\}" i
+snippet lrb "left\{ right\}" i
+\left\\{${1:${VISUAL}}\right\\}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr[ "left[ right]" i
+snippet lr[ "left[ right]" i
+\left[${1:${VISUAL}}\right]$0
+endsnippet
+#}}}
+context "math()"
+#{{{ lr< "leftangle rightangle" iA
+snippet lr< "leftangle rightangle" iA
+\left<${1:${VISUAL}}\right>$0
+endsnippet
+#}}}
+context "math()"
+#{{{ conj "conjugate" iA
+snippet conj "conjugate" iA
+\overline{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ sum "sum" w
+snippet sum "sum" w
+\sum_{k=${1:0}}^{${2:\infty}} ${3:a_k z^k}
+endsnippet
+#}}}
+context "math()"
+#{{{ taylor "taylor" w
+snippet taylor "taylor" w
+\sum_{${1:k}=${2:0}}^{${3:\infty}} ${4:c_$1} (x-a)^$1 $0
+endsnippet
+#}}}
+context "math()"
+#{{{ lim "limit" w
+snippet lim "limit" w
+\lim_{${1:n} \to ${2:\infty}}
+endsnippet
+#}}}
+context "math()"
+#{{{ limsup "limsup" w
+snippet limsup "limsup" w
+\limsup_{${1:n} \to ${2:\infty}}
+endsnippet
+#}}}
+context "math()"
+#{{{ bx "bigtimes" w
+snippet bx "bigtimes" w
+\bigtimes_{${1:n=${2:1}} }^{${3:\infty}} ${4:${VISUAL}} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ prod "product" w
+snippet prod "product" w
+\prod_{${1:n=${2:1}} }^{${3:\infty}} ${4:${VISUAL}} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ part "d/dx" w
+snippet part "d/dx" w
+\frac{\partial ${1:V}}{\partial ${2:x}} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ sq "\sqrt{}" iA
+snippet sq "\sqrt{}" iA
+\sqrt{${1:${VISUAL} }}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ sr "^2" iA
+snippet sr "^2" iA
+^2
+endsnippet
+#}}}
+context "math()"
+#{{{ td "to the ... power" iA
+snippet td "to the ... power" iA
+^{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ __ "subscript" iA
+snippet __ "subscript" iA
+_{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ ooo "\infty" iA
+snippet ooo "\infty" iA
+\infty
+endsnippet
+#}}}
+context "math()"
+#{{{ rij "mrij" i
+snippet rij "mrij" i
+(${1:x}_${2:n})_{${3:$2}\\in${4:\\N}}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ <= "leq" iA
+snippet <= "leq" iA
+\le
+endsnippet
+#}}}
+context "math()"
+#{{{ >= "geq" iA
+snippet >= "geq" iA
+\ge
+endsnippet
+#}}}
+context "math()"
+#{{{ >~ "gtrsim" iA
+snippet >~ "gtrsim" iA
+\gtrsim
+endsnippet
+#}}}
+context "math()"
+#{{{ <~ "lesssim" iA
+snippet <~ "lesssim" iA
+\lesssim
+endsnippet
+#}}}
+context "math()"
+#{{{ EE "geq" iA
+snippet EE "geq" iA
+\exists
+endsnippet
+#}}}
+context "math()"
+#{{{ AA "forall" iA
+snippet AA "forall" iA
+\forall
+endsnippet
+#}}}
+context "math()"
+#{{{ xnn "xn" iA
+snippet xnn "xn" iA
+x_{n}
+endsnippet
+#}}}
+context "math()"
+#{{{ ynn "yn" iA
+snippet ynn "yn" iA
+y_{n}
+endsnippet
+#}}}
+context "math()"
+#{{{ xii "xi" iA
+snippet xii "xi" iA
+x_{i}
+endsnippet
+#}}}
+context "math()"
+#{{{ yii "yi" iA
+snippet yii "yi" iA
+y_{i}
+endsnippet
+#}}}
+context "math()"
+#{{{ xjj "xj" iA
+snippet xjj "xj" iA
+x_{j}
+endsnippet
+#}}}
+context "math()"
+#{{{ yjj "yj" iA
+snippet yjj "yj" iA
+y_{j}
+endsnippet
+#}}}
+context "math()"
+#{{{ xp1 "x" iA
+snippet xp1 "x" iA
+x_{n+1}
+endsnippet
+#}}}
+context "math()"
+#{{{ xmm "x" iA
+snippet xmm "x" iA
+x_{m}
+endsnippet
+#}}}
+context "math()"
+#{{{ mbf "mathbf" iA
+snippet mbf "mathbf" iA
+\mathbf{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ mrm "mathrm" iA
+snippet mrm "mathrm" iA
+\mathrm{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ mbb "mathbf" iA
+snippet mbb "mathbf" iA
+\mathbb{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ mscr "mathscr" iA
+snippet mscr "mathscr" iA
+\mathscr{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ mcal "mathcal" iA
+snippet mcal "mathcal" iA
+\mathcal{$1}$0
+endsnippet
+#}}}
+#{{{ lll "l" iA
+snippet lll "l" iA
+\ell
+endsnippet
+#}}}
+context "math()"
+#{{{ nabl "nabla" iA
+snippet nabl "nabla" iA
+\nabla
+endsnippet
+#}}}
+context "math()"
+#{{{ xx "cross" iA
+snippet xx "cross" iA
+\times
+endsnippet
+#}}}
+context "math()"
+#{{{ norm "norm" iA
+snippet ||| "norm" iA
+\Norm{${1:InputHere}}$0
+endsnippet
+#}}}
+priority 100
+context "math()"
+#{{{ '(?<!\\)(sin|cos|arccot|cot|csc|ln|log|exp|star|perp)' "ln" rwA
+snippet '(?<!\\)(sin|cos|arccot|cot|csc|ln|log|exp|star|perp)' "ln" rwA
+\\`!p snip.rv = match.group(1)`
+endsnippet
+#}}}
+priority 300
+context "math()"
+#{{{ dint "integral" wA
+snippet dint "integral" wA
+\int_{${1:-\infty}}^{${2:\infty}} ${3:${VISUAL}} $0
+endsnippet
+#}}}
+priority 200
+context "math()"
+#{{{ '(?<!\\)(arcsin|arccos|arctan|arccot|arccsc|arcsec|pi|zeta|int)' "ln" rwA
+snippet '(?<!\\)(arcsin|arccos|arctan|arccot|arccsc|arcsec|pi|zeta|int)' "ln" rwA
+\\`!p snip.rv = match.group(1)`
+endsnippet
+#}}}
+priority 100
+context "math()"
+#{{{ -> "to" iA
+snippet -> "to" iA
+\to
+endsnippet
+#}}}
+priority 200
+context "math()"
+#{{{ <-> "leftrightarrow" iA
+snippet <-> "leftrightarrow" iA
+\leftrightarrow
+endsnippet
+#}}}
+context "math()"
+#{{{ !> "mapsto" iA
+snippet !> "mapsto" iA
+\mapsto
+endsnippet
+#}}}
+context "math()"
+#{{{ invs "inverse" iA
+snippet invs "inverse" iA
+^{-1}
+endsnippet
+#}}}
+context "math()"
+#{{{ compl "complement" iA
+snippet compl "complement" iA
+^{c}
+endsnippet
+#}}}
+context "math()"
+#{{{ sm "setminus" iA
+snippet sm "setminus" iA
+\setminus
+endsnippet
+#}}}
+priority 100
+context "math()"
+#{{{ ** "cdot" iA
+snippet ** "cdot" iA
+\cdot
+endsnippet
+#}}}
+context "math()"
+#{{{ := ">>" iA
+snippet := ":=" iA
+\coloneqq
+endsnippet
+#}}}
+context "math()"
+#{{{ =: ">>" iA
+snippet =: "=:" iA
+\eqqcolon
+endsnippet
+#}}}
+context "math()"
+#{{{ >> ">>" iA
+snippet >> ">>" iA
+\gg
+endsnippet
+#}}}
+context "math()"
+#{{{ << "<<" iA
+snippet << "<<" iA
+\ll
+endsnippet
+#}}}
+context "math()"
+#{{{ ~~ "~" iA
+snippet ~~ "~" iA
+\sim
+endsnippet
+#}}}
+context "math()"
+#{{{ set "set" wA
+snippet set "set" wA
+\\{$1\\} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ cc "subset" Ai
+snippet cc "subset" iA
+\subset
+endsnippet
+#}}}
+context "math()"
+#{{{ notin "not in " iA
+snippet notin "not in " iA
+\not\in
+endsnippet
+#}}}
+context "math()"
+#{{{ inn "in " iA
+snippet inn "in " iA
+\in
+endsnippet
+#}}}
+context "math()"
+#{{{ NN "n" iA
+snippet NN "n" iA
+\N
+endsnippet
+#}}}
+context "math()"
+#{{{ Nn "cap" iA
+snippet Nn "cap" iA
+\cap
+endsnippet
+#}}}
+context "math()"
+#{{{ UU "cup" iA
+snippet UU "cup" iA
+\cup
+endsnippet
+#}}}
+context "math()"
+#{{{ uuu "bigcup" iA
+snippet uuu "bigcup" iA
+\bigcup_{${1:i \in ${2: I} }} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ nnn "bigcap" iA
+snippet nnn "bigcap" iA
+\bigcap_{${1:i \in ${2: I} }} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ OO "emptyset" iA
+snippet OO "emptyset" iA
+\emptyset
+endsnippet
+#}}}
+context "math()"
+#{{{ RR "real" iA
+snippet RR "real" iA
+\R
+endsnippet
+#}}}
+context "math()"
+#{{{ QQ "Q" iA
+snippet QQ "Q" iA
+\Q
+endsnippet
+#}}}
+context "math()"
+#{{{ ZZ "Z" iA
+snippet ZZ "Z" iA
+\Z
+endsnippet
+#}}}
+context "math()"
+#{{{ <! "normal" iA
+snippet <! "normal" iA
+\triangleleft
+endsnippet
+#}}}
+context "math()"
+#{{{ <> "hokje" iA
+snippet <> "hokje" iA
+\diamond
+endsnippet
+#}}}
+context "math()"
+#{{{ '(?<!i)sts' "text subscript" irA
+snippet '(?<!i)sts' "text subscript" irA
+_\text{$1} $0
+endsnippet
+#}}}
+context "math()"
+#{{{ tt "text" iA
+snippet tt "text" iA
+\text{$1}$0
+endsnippet
+#}}}
+context "math()"
+#{{{ case "cases" wA
+snippet case "cases" wA
+\begin{cases}
+  $1
+\end{cases}
+endsnippet
+#}}}
+priority 10
+context "math()"
+#{{{ "bar" "bar" riA
+snippet "bar" "bar" riA
+\overline{$1}$0
+endsnippet
+#}}}
+priority 100
+context "math()"
+#{{{ "([a-zA-Z])bar" "bar" riA
+snippet "([a-zA-Z])bar" "bar" riA
+\overline{`!p snip.rv=match.group(1)`}
+endsnippet
+#}}}
+priority 10
+context "math()"
+#{{{ "hat" "hat" riA
+snippet "hat" "hat" riA
+\hat{$1}$0
+endsnippet
+#}}}
+priority 10
+context "math()"
+#{{{ "UD" "Updownarrow" riA
+snippet "UD" "Updownarrow" riA
+\Updownarrow
+endsnippet
+#}}}
+priority 10
+context "math()"
+#{{{ "UA" "Uparrow" riA
+snippet "UA" "Uparrow" riA
+\Uparrow
+endsnippet
+#}}}
+priority 10
+context "math()"
+#{{{ "DA" "Downarrow" riA
+snippet "DA" "Downarrow" riA
+\Downarrow
+endsnippet
+#}}}
+priority 100
+context "math()"
+#{{{ "([a-zA-Z])hat" "hat" riA
+snippet "([a-zA-Z])hat" "hat" riA
+\hat{`!p snip.rv=match.group(1)`}
+endsnippet
+#}}}
+priority 100
+context "math()"
+#{{{ "([a-zA-Z])bf" "bf" riA
+snippet "([a-zA-Z])bf" "bf" riA
+\mathbf{`!p snip.rv=match.group(1)`}
+endsnippet
+#}}}
+context "math()"
+#{{{ HH "H" iA
+snippet HH "H" iA
+\mathbb{H}
+endsnippet
+#}}}
+context "math()"
+#{{{ DD "D" iA
+snippet DD "D" iA
+\mathbb{D}
+endsnippet
+#}}}
+#}}}
+# The following will be some big equations.
+#{{{ SHEeq "Equation for SHE"
+snippet SHEeq "Equation for SHE"
+\begin{align}
+  \tag{SHE}
+  \begin{cases}
+    \displaystyle \frac{\partial u}{\partial t}(t,x) = \frac{1}{2} \Delta u(t,x) + \theta V(t,x) u(t,x)& t>0,\: x\in\R^d, \\\\
+    \displaystyle u(0,x) = u_0(x)
+  \end{cases}
+  \label{E:SHE}
+\end{align}
+endsnippet
+#}}}
+#{{{ COVeq "Equation for Cov"
+snippet COVeq "Equation for Cov"
+\begin{align*}
+  \Cov\left(V(s,x),V(t,y)\right) = \gamma_0(s-t)\gamma(x-y).
+\end{align*}
+endsnippet
+#}}}
+#{{{ VariationEeq "Variational constant E in XChen16AOP"
+snippet VariationEeq "Variational constant E in XChen16AOP"
+Let $W^{1,2}(\R^d)$ be the Sobolev space of all functions $g\in\R^d$ such that
+both $g$ and $\nabla g\in L^2(\R^d)$. Denote
+\begin{align*}
+  \mathcal{A}_d \coloneqq \bigg\\{g(\cdot,\circ)\:: & \: g(s,\circ)\in W^{1,2}(\R^d), \: g(s,\cdot)\in L^2(\R^d), \: \forall s\in [0,1]\\\\
+                                            & \quad \text{and} \quad \int_0^1\int_{\R^d}\left|\nabla_x g(s,x)\right|^2\d x\d s <\infty\bigg\\}
+\end{align*}
+and
+\begin{align*}
+  \mathcal{E}\left(\alpha_0,d,\gamma\right) = \sup_{g\in \mathcal{A}_d}\bigg\\{
+  \int_0^1\int_0^1\int_{\R^d\times\R^d}
+  &\frac{\gamma(x-y)}{\left|r-s\right|^{\alpha_0}} g^2(s,x) g^2(r,y) \d x\d y\d r\d s\\\\
+  &-\frac{1}{2}\int_0^1\int_{\R^d} \left|\nabla_x g(s,x)\right|^2\d x\d s<\infty
+  \bigg\\}
+\end{align*}
+endsnippet
+#}}}
+#{{{ Fdeq "The space F_d in XChen16AOP"
+snippet Fdeq "The space F_d in XChen16AOP"
+\begin{align*}
+  \mathcal{F}_d = \left\\{g\in W^{1,2}\left(\R^d\right):\: \int_{\R^d} g^2(x)\d x=1\right\\}
+\end{align*}
+endsnippet
+#}}}
+#{{{ VarEn "Variation constant E_n"
+snippet VarEn "Variation constant E_n in XChen15AIHP"
+\begin{align*}
+  \mathcal{E}_n(\theta) = \sup_{g\in \mathcal{F}_n} \left\\{\theta\sum_{1\le j<k\le n}\int_{\R^n} \delta_0(x_j-x_k)g^2(x)\d x -\frac{1}{2}\int_{\R^n}\left|\nabla g(x)\right|^2 \d x\right\\},\quad \theta>0.
+\end{align*}
+endsnippet
+#}}}
+# The following are for tikz related:{{{
+#{{{ nn "Tikz node" w
+snippet nn "Tikz node" w
+\node[$5] (${1/[^0-9a-zA-Z]//g}${2}) ${3:at (${4:0,0}) }{$${1}$};
+$0
+endsnippet
+#}}}
+#{{{ dr "Tikz draw" w
+snippet dr "Tikz draw" w
+\draw[${1}] (${2:0, 0}) -- $4(${3:0,0});
+$0
+endsnippet
+#}}}
+#{{{ na "Tikz node above" w
+snippet na "Tikz node above" w
+node[above`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nb "Tikz node below" w
+snippet nb "Tikz node below" w
+node[below`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nr "Tikz node right" w
+snippet nr "Tikz node right" w
+node[right`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nl "Tikz node left" w
+snippet nl "Tikz node left" w
+node[left`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nar "Tikz node above right" w
+snippet nar "Tikz node above right" w
+node[above right`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nal "Tikz node above left" w
+snippet nal "Tikz node above left" w
+node[above left`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nbr "Tikz node below right" w
+snippet nbr "Tikz node below right" w
+node[below right`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nbl "Tikz node below left" w
+snippet nbl "Tikz node below left" w
+node[below left`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ nmd "Tikz node midway" w
+snippet nmd "Tikz node midway" w
+node[midway,above,sloped`!p snip.rv=', ' if t[2] else ''`${2}]{$${1}$} $0
+endsnippet
+#}}}
+#{{{ frame "Tikz frame" w
+snippet frame "Tikz frame" w
+\draw[help lines, <->] (-$1, 0) -- ($1, 0);
+\draw[help lines, <->] (0, -$1) -- (0, $1);
+$0
+endsnippet
+#}}}
+#{{{ force "Tikz force" w
+snippet force "Tikz force" w
+\draw[force] (${1:0, 0}) -- $3 ++(${2:0, 0});
+$0
+endsnippet
+#}}}
+#{{{ tikz "Tikz figure genenral framework"
+snippet tikz "Tikz figure genenral framework" w
+\begin{figure}[htb]
+  \centering
+  \begin{tikzpicture}
+    $0
+  \end{tikzpicture}
+  \caption{$1}
+  \label{fig:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga} }}
+\end{figure}
+endsnippet
+#}}}
+#{{{ co "Tikz coordinate"
+snippet co "Tikz coordinate" w
+coordinate ($1) $0
+endsnippet
+#}}}
+#{{{ tikzhist
+snippet tikzhist "Draw a histogram " b
+%\usepackage{pgfplots}
+\begin{tikzpicture}
+  \begin{axis}[
+    ymin=0, ymax=55,
+    minor y tick num = 3,
+    area style,
+    ]
+    \addplot+[ybar interval,mark=no] plot coordinates {
+      (0, 5)
+      (5, 35)
+      (10, 50)
+      (15, 30)
+      (20, 15)
+      (25, 0)
+      };
+  \end{axis}
+\end{tikzpicture}
+endsnippet
+#}}}
+#{{{ tikztree2
+snippet tikztree2 "Draw a binomial tree" b
+\begin{center}
+  \begin{tikzpicture}[level distance=1.5cm,
+    level 1/.style={sibling distance=3cm},
+    level 2/.style={sibling distance=1.5cm}]
+    \node {root}
+      child[grow=30] {node {left}}
+      child[grow=-30] {node {right}};
+  \end{tikzpicture}
+\end{center}
+endsnippet
+#}}}
+#{{{ tikztree1
+snippet tikztree1 "Draw a binomial tree" b
+\begin{center}
+  \begin{tikzpicture}[level distance=10mm,
+    sibling distance=10mm,
+    every node/.style={inner sep=5pt},
+    arrow/.style={edge from parent/.style={draw}}
+  ]
+
+  \node {0}
+  child[grow=right] {
+  child {node{40}} child {node{50}} child[arrow] {node{60}}
+  };
+  \end{tikzpicture}
+\end{center}
+endsnippet
+#}}}
+#{{{ tikzdraw1
+snippet tikzdraw1 "Draw a tikz" b
+\begin{center}
+  \begin{tikzpicture}[scale=1, transform shape]
+    \tikzset{>=latex}
+    \coordinate (P) at (0.2,1.5);
+    \coordinate (Q) at (3,0.3);
+    \coordinate (0) at (0,0);
+    \draw (P) -- coordinate[pos={1/3}] (A) coordinate[pos={2/3}] (B) (Q) node [right] {$Q$};
+    \draw [->,dashed] (0) node [below] {${0:here}} -- (P) node [above] {$P$};
+    \draw [->,dashed] (0) -- (A) node [above] {$A$};
+    \draw [->,dashed] (0) -- (B) node [above] {$B$};
+    \filldraw (P) circle (0.05);
+    \filldraw (Q) circle (0.05);
+    \filldraw (0) circle (0.05);
+    \filldraw (A) circle (0.05);
+    \filldraw (B) circle (0.05);
+  \end{tikzpicture}
+\end{center}
+endsnippet
+#}}}
+#{{{ tikzdraw2
+snippet tikzdraw2 "Draw a tikz" b
+\begin{center}
+  \begin{tikzpicture}[scale=1, transform shape]
+  \tikzset{>=latex}
+  \coordinate (L) at (3.1,0.4);
+  \coordinate (P0) at (0.2,1.6);
+  \coordinate (0) at (0,0);
+  \coordinate (P) at (3,2.22);
+  \draw ($(P)!-1cm!(P0)$)  -- (P) node [below]  {$P$} -- (P0) node [above] {$P_0$} -- ($(P0)!-1cm!(P)$) node [left] {$L$};
+  \draw [thick,->,color=blue] (P0) --coordinate [pos={1/2}] (m) node [above] {${\vec{d}}$} ($(P)!1cm!(P0)$);
+  \draw[dashed,->] (0) node [below] {${0:here}} -- (P0);
+  \draw[dashed,->] (0) -- (P);
+  \filldraw (P) circle (0.05);
+  \filldraw (P0) circle (0.05);
+  \filldraw (0) circle (0.05);
+  \end{tikzpicture}
+\end{center}
+endsnippet
+#}}}
+#{{{ tikzdraw3 "Tickz plot coordinates" b
+snippet tikzdraw3 "Tickz plot coordinates" b
+\begin{center}
+	\begin{tikzpicture}[scale=0.8, transform shape]
+		\begin{axis}[
+			axis lines = left,
+			xtick={0, 15, 23, 46, 64, 100},
+			ytick={0,         0.2529,           0.5073,                    0.9483},
+			yticklabels={0, $\frac{1}{2\pi}$, $\frac{2 \sqrt{2}}{3\pi}$, $\frac{1}{2}$},
+			% legend style={at={(1.0,0.9)},anchor=north},
+			% legend style={draw=none},
+			% xmin=-8,
+			xlabel=$n$,
+			ylabel=$\mathbb{P}(A)$,
+			xmax=110,
+			ymax=1.1,
+			]
+			% \addplot[smooth,domain=-9:9,dashed,thin] {0};
+
+	\addplot[domain=-9:9,red,very thick,smooth] coordinates {
+		\input{./${1:FigName}.table}
+	};
+		 \def\x{15}
+		 \def\y{0.2529}
+		 \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,0.02) (\x  ,\y)};
+		 \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,\y)   (1.50,\y)};
+		 \def\x{23}
+		 \def\y{0.5073}
+		 \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,0.02) (\x  ,\y)};
+		 \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,\y)   (1.50,\y)};
+		 \def\x{46}
+		 \def\y{0.9483}
+		 \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,0.02) (\x  ,\y)};
+		 \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,\y)   (1.50,\y)};
+		 % \def\x{100}
+		 % \def\y{1.000}
+		 % \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,0.02) (\x  ,\y)};
+		 % \addplot[thick, samples=50, smooth,domain=0:101, dashed] coordinates {(\x,\y)   (1.50,\y)};
+	\end{axis}
+	\end{tikzpicture}
+\end{center}
+% Do not remove the following commented codes.
+% \begin{codes} %math
+%
+% (* Plot Theta *)
+% FigName = "$1"
+% res = Table[{\[Beta],
+%       NIntegrate[
+%        1/(2 \[Pi])
+%           MittagLefflerE[\[Beta],
+%           Ceiling[\[Beta]], -\[Nu]/2 x^2]^2 /. \[Nu] ->
+%          2, {x, -\[Infinity], \[Infinity]}]}, {\[Beta], 0.001, 1.999,
+%       0.01}]
+% Export[FigName<>".table", res, "CSV"]
+% Run["csv-coordinates.sh "<>FigName<>".table"]
+%
+% \end{codes}
+endsnippet
+#}}}
+
+#{{{  tikzdraw4 "description"
+snippet tikzdraw4 "Draw data columns from csv file" b
+\begin{figure}[htpb]
+  \centering
+  \begin{center}
+    \begin{tikzpicture}[scale=0.8, transform shape]
+      \begin{axis}[
+        axis lines = middle,
+        % xtick={0, 15, 23, 46, 64, 100},
+        % ytick={0,         0.2529,           0.5073,                    0.9483},
+        % yticklabels={0, $\frac{1}{2\pi}$, $\frac{2 \sqrt{2}}{3\pi}$, $\frac{1}{2}$},
+        legend style={at={(axis description cs: 0.1,1.1)},anchor=north},
+        legend style={draw=none},
+        xmax=9,
+        ymax= 8.2,
+        ymin=-8.2,
+        xmin=-5,
+        xlabel=$x$,
+        ylabel=$g_3(x)$,
+        x label style={at={(axis description cs:1.1,0.5)}},
+        y label style={at={(axis description cs:0.3,1.15)}},
+        ]
+        \addplot[mark=none, smooth, blue, thick] table[ x index=0, y index=1, col sep=comma] {${1:CSV}.csv};
+        \addlegendentry{$\alpha=1$}
+        \addplot[mark=none, smooth, red, dashed, very thick] table[ x index=0, y index=2, col sep=comma] {$1.csv};
+        \addlegendentry{$\alpha=\sfrac{1}{4}$}
+        \draw[dotted,thick] (axis cs: -4.2,-4.2) -- (axis cs: 8.2,  8.2);
+        \draw[dotted,thick] (axis cs: -4.2,+4.2) -- (axis cs: 8.2, -8.2);
+    \end{axis}
+    \end{tikzpicture}
+  \end{center}
+
+% Do not remove the following commented codes.
+% \begin{codes} %math
+%
+% (* Plot Theta *)
+% FigName = "$1.csv"
+% res = Table[{x, x Sin[x Log[1 + Abs[x]]], x Sin[x Log[1 + Abs[x]]^(1/4)]}, {x, -4, 8, 0.02}]
+% Export[FigName, res, "CSV"]
+%
+% \end{codes}
+
+  \caption{Plot of the function $g_3(x)$ in Example \ref{Eg:Lip}.}
+
+  \label{F:Lip}
+\end{figure}
+endsnippet
+#}}}
+#{{{TikzMind "Template for a mindmap in an independent document"
+snippet TikzMind "Template for a mindmap in an independent document" b
+\documentclass[tikz,convert=false]{standalone}
+\usetikzlibrary{mindmap,trees,graphs,calc}
+\tikzset{
+  set angles for level/.style={level #1/.append style={sibling angle=360/\the\tikznumberofchildren}},
+  level/.append style={set angles for level=#1}% solution 1
+}
+\begin{document}
+\tikzset{
+  set angles for level/.style={level #1/.append style={sibling angle=360/\the\tikznumberofchildren}},
+  level/.append style={set angles for level=#1}% solution 1
+}
+\tikzset{level 1 concept/.append style={font=\sf, sibling angle=90,level distance = 25mm}}
+\tikzset{level 2 concept/.append style={font=\sf, sibling angle=45,level distance = 15mm}}
+\tikzset{level 3 concept/.append style={font=\sf, sibling angle=45,level distance = 15mm}}
+\tikzset{every node/.append style={scale=0.6}}
+% \tikzset{every node/.append style={scale=0.6}}
+ \begin{tikzpicture}[scale=1.1]
+  \path[mindmap,concept color=black,text=white]
+    node[concept] {Stochastic Heat Equation}
+    [clockwise from=0]
+    child[concept color=green!50!black] {
+      node[concept] {Particle systems} [clockwise from=120,sibling angle=30]
+      child { node[concept] {(T)ASEP, \\ WASEP}
+       }
+       child { node[concept] {Exactly Solvable Model}}
+       child { node[concept] {Tracy-Widom GUE/GOE distr. } }
+%       child { node[concept] {WASEP} }
+%       child { node[concept] {software engineer\-ing} }
+    }
+    child[concept color=blue] {
+      node[concept] {Parabolic Anderson Model}
+      [clockwise from=0]
+      child { node[concept] {Random Polymer Models} }
+      child { node[concept] {Localization and Intermittency} }
+    }
+    child[concept color=red] { node[concept] (KPZ) {Kardar-Parisi-Zhang (KPZ) Eq.}
+    [clockwise from=180]
+    child { node[concept] {Hairer's Regularity Structure} }}
+        child[concept color=red] { node[concept] (Burgers) {Stochastic Burgers' Eq.}
+    [clockwise from=150]
+    child { node[concept] {Stratified structure of the Universe} }}
+    child[concept color=orange] { node[concept] {Mathematical biology}[clockwise from=0]
+    child { node[concept] { Dawson-Watanabe superprocess}}
+    child { node[concept] {Kolmogorov-Petrovsky-Piskunov (KPP) Eq. with noise}}
+    };
+  \node[circle,extra concept,text=white,concept color=red] (additional) at ($(Burgers)!0.5!(KPZ)+(-1,0)$) {Cole-Hopf \\Transform};
+   \draw[ultra thick,red] (additional) -- (KPZ);
+   \draw[ultra thick,red] (additional) -- (Burgers);
+\end{tikzpicture}
+\end{document}
+endsnippet
+#}}}
+#{{{ plot "Plot" w
+snippet plot "Plot" w
+\begin{figure}[$1]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      xmin= ${2:-10}, xmax= ${3:10},
+      ymin= ${4:-10}, ymax = ${5:10},
+      axis lines = middle,
+    ]
+      \addplot[domain=$2:$3, samples=${6:100}]{$7};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{$8}
+  \label{${9:$8}}
+\end{figure}
+endsnippet
+#}}}
+#{{{ drawfunction "Draw a function in tikz"
+snippet drawfunction "Draw a function in tikz"
+\begin{tikzpicture}
+  \draw[scale=0.5, domain=-3:3, smooth, variable=\x, blue] plot ({\x}, {\x*\x});
+  \draw[scale=0.5, domain=-3:3, smooth, variable=\y, red]  plot ({\y*\y}, {\y});
+  \foreach \x in {0,...,4}{
+      \draw (\x,0.1)--++(0,-0.2) node [below] {$\x$};
+  }
+  \draw[->] (-3, 0) -- (4.2, 0) node[right] {$x$};
+  \draw[->] (0, -3) -- (0, 4.2) node[above] {$y$};
+\end{tikzpicture}
+endsnippet
+#}}}
+# {{{ mindmap "Mind map template"
+snippet mindmap "Mind map template"
+\tikzset{every node/.append style={scale=0.9}}
+\tikzset{level 1 concept/.append style={font=\sf, sibling angle=90,level distance = 25mm}}
+\tikzset{level 2 concept/.append style={font=\sf, sibling angle=45,level distance = 15mm}}
+\tikzset{level 3 concept/.append style={font=\sf, sibling angle=45,level distance = 15mm}}
+\tikzset{
+    invisible/.style={opacity=0},
+    visible on/.style={alt={#1{}{invisible} }},
+    alt/.code args={<#1>#2#3}{%
+      \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+    },
+  }
+\begin{tikzpicture}[small mindmap,concept color=black,text=white]
+\begin{scope}[concept color=red!30!black]
+  \node (right) at (2.2,0) [concept,visible on =<1->] {Stochastic Partial Diff.  Eq.\\\\[0.5em] (SPDE) \\\\[0.5em]  $u(t,x)$}
+  [clockwise from=110]
+  child[visible on =<2-5>] { node[concept] {70's, 80's, Pardoux, Walsh, Da Prato, Zabczyk, $\cdots$}}
+  child[visible on =<3-5>] { node[concept] {Infinite dimension} }
+  child[visible on =<4-5>] { node[concept] {No It\^o's formula!} }
+  child[visible on =<5-5>] { node[concept] {Vigorously developing\\\\$\cdots$} }
+;
+\end{scope}
+
+\begin{scope}[concept color=green!30!black]
+\node (left) at (-2.2,0) [concept,visible on =<1->] {Stochastic Diff. Eq. \\\\[0.5em] (SDE) \\\\[0.5em] $u(t)$}
+  [counterclockwise from=70]
+  child[visible on =<2-5>] { node[concept] {40's, 50's, Wiener, It\^o, Stratonovich, Mayer, $\cdots$}}
+  child[visible on =<3-5>] { node[concept] {Finite dimension} }
+  child[visible on =<4-5>] { node[concept] {It\^o's formula \\\\ \& \\\\ applications} }
+  child[visible on =<5-5>] { node[concept] {Mature} }
+;
+\end{scope}
+
+\path[visible on =<6->] (left) to[circle connection bar switch color=from (green!30!black) to (red!30!black)] (right) ;
+
+\end{tikzpicture}
+endsnippet
+# }}}
+#}}}
+#{{{ includepdf "includepdf pages" b
+snippet includepdf "includepdf pages" b
+\includepdf[pages=-]{./${0:Filename}}
+endsnippet
+#}}}
+
+# The following are for beamer slides with a specified background
+#{{{ bbgfrm "One beamer slide for course with a specified background" b
+snippet bbgfrm "One beamer slide for course with a specified background" b
+\usebackgroundtemplate{\includegraphics[width=\paperwidth,height=\paperheight]{./figs/${1:images-file}}}
+\begin{frame}[fragile,t] % COMMENTS
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[align=center, white] at (current page.center) {%
+        Two roads diverged ...,\\
+        $\vdots$ \\
+        I took the one less traveled by,\\
+        And that has made all differences.\\
+        \hspace{6em} ---\textit{Robert Frost} 
+    };
+  \end{tikzpicture}
+\end{frame}
+\usebackgroundtemplate{}
+endsnippet
+#}}}
+# The following are for beamer slides
+#{{{ bfrm -- One beamer slide for course
+snippet bfrm "One beamer slide for course" b
+\begin{frame}[fragile,t] % COMENTS
+  \frametitle{${1:title}}
+  ${0:${VISUAL}}
+\end{frame}
+endsnippet
+#}}}
+#{{{ tfrm -- One beamer slide for talk
+snippet tfrm "One beamer slide for talk" b
+% {{{ 1.
+\begin{frame}[fragile]
+  \frametitle{${1:title}}
+  ${0:${VISUAL}}
+\end{frame}
+% }}}
+endsnippet
+#}}}
+#{{{ pfrm -- One beamer slide for problem
+priority 100
+snippet pfrm "One beamer slide for problem" b
+%-------------- start slide -------------------------------%{{{ 1
+\begin{frame}[fragile]
+\begin{problem}
+\begin{enumerate}
+\item
+\item
+\item
+\item
+\item
+\end{enumerate}
+\end{problem}
+\pause
+Answer: ${1:title}}
+  ${0:${VISUAL}}
+\end{frame}
+%-------------- end slide -------------------------------%}}}
+endsnippet
+#}}}
+#{{{ cfrm "Centered beamer slide" b
+priority 100
+snippet cfrm "Centered beamer slide" b
+%-------------- start slide -------------------------------%{{{ 1
+\begin{frame}[fragile]
+ \begin{center}
+ \begin{minipage}{0.6\textwidth}
+ \begin{center}
+  ${0:${VISUAL}}
+\end{center}
+ \end{minipage}
+\end{center}
+\end{frame}
+%-------------- end slide -------------------------------%}}}
+endsnippet
+#}}}
+#{{{ lstp "lstlisting for Python code" b
+priority 100
+snippet lstp "lstlisting for code" b
+\begin{lstlisting}[language=Python]
+${1:${VISUAL}}
+\end{lstlisting}
+endsnippet
+#}}}
+#{{{ lstr "lstlisting for R code" b
+priority 100
+snippet lstr "lstlisting for code" b
+\begin{lstlisting}[language=R]
+${1:${VISUAL}}
+\end{lstlisting}
+endsnippet
+#}}}
+# The following are some templates
+#{{{ Comment
+snippet Comment "Template for a comment pdf" b
+\documentclass[a4paper,12pt]{article}
+#}}}
+% -------------------------------------------------
+%   _            ____ _                
+%  | |    ___   / ___| |__   ___ _ __  
+%  | |   / _ \ | |   | '_ \ / _ \ '_ \ 
+%  | |__|  __/ | |___| | | |  __/ | | |
+%  |_____\___|  \____|_| |_|\___|_| |_|
+%
+%  Created on `date`
+%
+% -------------------------------------------------
+% Set up the page margins.
+% -------------------------------------------------
+% \usepackage[text={6.5in,9.5in},centering]{geometry}
+\usepackage[margin=1in]{geometry}
+% \setlength{\topmargin}{-0.25in}
+
+% -------------------------------------------------
+% Load Packages here
+% -------------------------------------------------
+\usepackage{graphicx,url,subfig}
+\usepackage[final]{pdfpages}
+\RequirePackage{amsthm,amsmath,amssymb,amscd,mathrsfs}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\RequirePackage[numbers]{natbib}
+% \usepackage{luacode}
+\usepackage{enumerate,xcolor,bm,datetime}
+
+% -------------------------------------------------
+% check references
+% -------------------------------------------------
+% \usepackage{refcheck}
+% \usepackage[notref,notcite]{showkeys}
+% \usepackage[notcite]{showkeys}
+% \usepackage{showkeys}
+
+% -------------------------------------------------
+% Environments here
+% -------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{example}[theorem]{Example}
+
+% -------------------------------------------------
+%  Define short hand symbols.
+% -------------------------------------------------
+\newcommand{\R}{ {\mathbb{R} }}
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\HH}{\mathcal{H}}
+\renewcommand{\P}{\mathrm{P}}
+\renewcommand{\d}{\mathrm{d}}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+% \renewcommand{\d }{\mathrm{d}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\Var}{\text{\rm Var}}
+\newcommand{\ud}{\text{\rm d}}
+\newcommand{\lip}{\text{\rm Lip}}
+\newcommand{\lup}{\text{\rm L}}
+\newcommand{\logapp}{\stackrel{(\log)}{\asymp}}
+\newcommand{\Norm}[1]{\left|\left|  #1   \right|\right|}
+\DeclareMathOperator{\Cov}{\text{\rm Cov}}
+
+
+% -------------------------------------------------
+% Title, authors and date go here.
+% -------------------------------------------------
+\title{${1:TITLE}}
+\author{Le Chen}
+\date{\today}
+\begin{document}
+\maketitle
+
+\noindent
+Dear all,
+\bigskip
+
+% -------------------------------------------------
+% Document begins here
+% -------------------------------------------------
+
+$0
+
+% -------------------------------------------------
+% Signature
+% -------------------------------------------------
+\bigskip
+\noindent
+Best regards,
+
+\noindent
+Le
+% -------------------------------------------------
+% References go here.
+% -------------------------------------------------
+\begin{thebibliography}{999}
+
+\bibitem{Adam03SecondEd}
+Adams, Robert A. and John J. F. Fournier.
+\newblock {\em Sobolev spaces}~(2$^{\text{nd}}$ ed.).
+\newblock Elsevier/Academic Press, Amsterdam, 2003.
+
+\bibitem{BC16}
+Balan, Raluca M. and Le Chen
+\newblock Parabolic Anderson model with space-time homogeneous Gaussian noise and rough initial condition
+\newblock {\em  J. Theoret. Probab.}, to appear, 2017.
+\end{thebibliography}
+
+\end{document}
+endsnippet
+#}}}
+# namedate "Nane date in the head" b{{{
+snippet namedate "Nane date in the head" b
+% -------------------------------------------------
+%   _            ____ _                
+%  | |    ___   / ___| |__   ___ _ __  
+%  | |   / _ \ | |   | '_ \ / _ \ '_ \ 
+%  | |__|  __/ | |___| | | |  __/ | | |
+%  |_____\___|  \____|_| |_|\___|_| |_|
+%
+%  Created on `date`
+%
+% -------------------------------------------------
+endsnippet
+#}}}
+#{{{ Report
+snippet Report "Template for a report" b
+\documentclass[a4paper,12pt]{article} % {{{ Head
+
+% -------------------------------------------------
+%   _            ____ _                
+%  | |    ___   / ___| |__   ___ _ __  
+%  | |   / _ \ | |   | '_ \ / _ \ '_ \ 
+%  | |__|  __/ | |___| | | |  __/ | | |
+%  |_____\___|  \____|_| |_|\___|_| |_|
+%
+%  Created on `date`
+%
+% -------------------------------------------------
+% Set up the page margins.
+% -------------------------------------------------
+% \usepackage[text={6.5in,9.5in},centering]{geometry}
+\usepackage[margin=1in]{geometry}
+% \setlength{\topmargin}{-0.25in}
+
+% -------------------------------------------------
+% Load Packages here
+% -------------------------------------------------
+\usepackage{graphicx,url,subfig}
+% \RequirePackage[OT1]{fontenc}
+% \usepackage{etex}
+\RequirePackage{amsthm,amsmath,amssymb,amscd,mathrsfs}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\RequirePackage[numbers]{natbib}
+% \usepackage{luacode}
+\usepackage{enumerate}
+\usepackage{datetime}
+\usepackage[normalem]{ulem} % either use this (simple) or
+\usepackage{soul} % use this (many fancier options)
+\usepackage{xcolor}
+
+% -------------------------------------------------
+% check references
+% -------------------------------------------------
+% \usepackage{refcheck}
+% \usepackage[notref,notcite]{showkeys}
+% \usepackage[notcite]{showkeys}
+% \usepackage{showkeys}
+
+% -------------------------------------------------
+% Environments here
+% -------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{example}[theorem]{Example}
+
+% -------------------------------------------------
+%  Define short hand symbols.
+% -------------------------------------------------
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\W}{\dot{W}}
+\newcommand{\ud}{\ensuremath{\mathrm{d} }}
+\newcommand{\Ceil}[1]{\left\lceil #1 \right\rceil}
+\newcommand{\Floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\sgn}{\text{sgn}}
+\newcommand{\Norm}[1]{\left|\left|  #1   \right|\right|}
+\newcommand{\Ito}{It\^{o} }
+\newcommand{\Itos}{It\^{o}'s }
+\newcommand{\spt}[1]{\text{supp}\left(#1\right)}
+\newcommand{\InPrd}[1]{\left\langle #1 \right\rangle}
+\newcommand{\arctanh}{\operatorname{arctanh}}
+\DeclareMathOperator{\esssup}{\ensuremath{ess\,sup}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calM}{\mathcal{M}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calO}{\mathcal{O}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calP}{\mathcal{P}}
+\newcommand{\calR}{\mathcal{R}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\bbC}{\mathbb{C}}
+\newcommand{\bbN}{\mathbb{N}}
+\newcommand{\bbZ}{\mathbb{Z}}
+\newcommand*{\one}{{ {\rm 1\mkern-1.5mu}\!{\rm I} }}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\myEnd}{\hfill$\square$}
+\newcommand{\Erf}{\ensuremath{\mathrm{erf} }}
+\newcommand{\Erfi}{\ensuremath{\mathrm{erfi} }}
+\newcommand{\Erfc}{\ensuremath{\mathrm{erfc} }}
+\newcommand{\He}{\ensuremath{\mathrm{He} }}
+\DeclareMathOperator{\Lip}{Lip}
+\DeclareMathOperator{\LIP}{Lip}
+\DeclareMathOperator{\lip}{\mathit{l}}
+\newcommand{\Dxa}{{}_x D_\delta^a}
+\newcommand{\Dtb}{{}_t D_*^\beta}
+\newcommand{\lMr}[3]{\:{}_{#1} #2_{#3}}
+\newcommand{\tlMr}[4]{\:{}^{\hspace{0.2em}#1}_{#2} \hspace{-0.1em}#3_{#4}}
+% }}}
+
+% -------------------------------------------------
+% Title, authors and date go here.
+% -------------------------------------------------
+\title{${1:TITLE}}
+\author{Le Chen}
+\date{\today}
+\begin{document}
+\maketitle
+
+% -------------------------------------------------
+% Document begins here
+% -------------------------------------------------
+$0
+% {{{ References
+% -------------------------------------------------
+% References go here.
+% -------------------------------------------------
+\begin{thebibliography}{999}
+
+\bibitem{Adam03SecondEd}
+Adams, Robert A. and John J. F. Fournier.
+\newblock {\em Sobolev spaces}~(2$^{\text{nd}}$ ed.).
+\newblock Elsevier/Academic Press, Amsterdam, 2003.
+
+\bibitem{BC16}
+Balan, Raluca M. and Le Chen
+\newblock Parabolic Anderson model with space-time homogeneous Gaussian noise and rough initial condition
+\newblock {\em  J. Theoret. Probab.}, to appear, 2017.
+\end{thebibliography} % }}}
+
+\end{document}
+
+endsnippet
+#}}}
+#{{{ MathRev "Template for MathRev" b
+snippet MathRev "Template for MathRev" b
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\RequirePackage{amsthm, amsmath, amssymb, amscd, mathtools}
+\def\D{^{C}D_t^\alpha}
+\def\W{\mathbb{W}}
+\def\H{\mathbb{H}}
+\def\K{\mathbb{K}}
+\def\E{\mathbb{E}}
+\def\R{\mathbb{R}}
+\def\cL{\mathcal{L}}
+\def\ud{\text{d}}
+\begin{document}
+
+$0
+
+\paragraph{References}\phantom{a}
+
+\noindent [5] Berglund, Nils & Gentz, Barbara (2002) 'A sample-paths approach to noise-induced synchronization:
+stochastic resonance in a double-well potential', *Ann. Appl. Probab.* 12, 1419--1470.
+<https://doi.org/10.1214/aoap/1037125869>
+
+\end{document}
+endsnippet
+#}}}
+#{{{ Review "Reviewing article" b
+snippet  Review "Reviewing article" b
+`find . -maxdepth 1 -name "*.pdf" -exec pdftotext {} \;`
+`../LinkGoodNote.lua Yes`
+\documentclass[12pt]{article} %{{{
+\usepackage[text={6.2in,8.6in},centering]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathrsfs,mathtools}
+\usepackage{luacode}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage[colorlinks=true,
+            linkcolor=blue,
+            filecolor=magenta,
+            urlcolor=blue,
+            citecolor=magenta,
+            pdftitle={Reviewing report},
+            pdfpagemode=FullScreen,
+           ]{hyperref}
+\usepackage[strict=true,style=english]{csquotes}
+\setlength{\parskip}{0.5cm plus4mm minus3mm}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Norm}[1]{\left|\left|  #1   \right|\right|}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\lp}[2]{\textit{Line~#1 on page~#2:~}}
+
+
+% -------------------------------------------------
+% BibTex setup
+% -------------------------------------------------
+\usepackage{amsrefs}
+
+\renewcommand{\MR}[1]{~\href{https://mathscinet.ams.org/mathscinet-getitem?mr=MR#1}{MR#1}.}
+
+\BibSpec{article}{%
+    +{}  {\PrintAuthors}                {author}
+    +{,} { \textit}                     {title}
+    +{.} { }                            {part}
+    +{:} { \textit}                     {subtitle}
+    +{,} { \PrintContributions}         {contribution}
+    +{.} { \PrintPartials}              {partial}
+    +{,} { }                            {journal}
+    +{}  { \textbf}                     {volume}
+    +{}  { \PrintDatePV}                {date}
+    +{,} { \issuetext}                  {number}
+    +{,} { \eprintpages}                {pages}
+    +{,} { }                            {status}
+    +{,} { \url}                        {url}
+    +{,} { \PrintDOI}                   {doi}
+    +{,} { available at \eprint}        {eprint}
+    +{}  { \parenthesize}               {language}
+    +{}  { \PrintTranslation}           {translation}
+    +{;} { \PrintReprint}               {reprint}
+    +{.} { }                            {note}
+    +{.} {}                             {transition}
+    +{}  {\SentenceSpace \PrintReviews} {review}
+}
+
+
+% Define the definition environment
+\newtheorem{definition}{Definition}
+
+\begin{luacode}
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
+lfs = require("lfs")
+if file_exists("notes.tex")==false then
+  os.execute("touch notes.tex")
+end
+if file_exists("All.bib")==false then
+  os.execute("ln -s ~/Dropbox/workspace/svn/refdb/All.bib All.bib")
+end
+if file_exists("table") then
+  Data = dofile("table")
+else
+  Data = {
+    Author    = 'FirstName1 LastName1 and FirstName2 LastName2',
+    Journal   = 'Journal name',
+    Editor    = 'EditorFirstName EditorLastName',
+    From      = '`date +%m/%d/%Y`',
+    Deadline  = '`date +%m/%d/%Y -d "+3 months"`',
+    Completed = ' ',
+    Title     = 'Almost surely time-space intermittency for the parabolic Anderson model with log-correlated Gaussian field',
+    Decision  = '---',
+    Report    = './Review.pdf',
+    Paper     = './`ls *.pdf`',
+    Path    = lfs.currentdir()
+  }
+end
+\end{luacode}
+
+\begin{document}
+% \noindent
+
+\begin{center}{
+Referee's report on:\\\\[0.5em]
+\begin{minipage}{0.8\textwidth}
+\begin{center}
+\luaexec{tex.sprint(Data['Title'])}
+\end{center}
+\end{minipage}
+\\\\[0.5em]
+by
+\\\\[0.5em]
+\luaexec{tex.sprint(Data['Author'])}
+}
+\end{center}
+% % \vskip .3in }}}
+
+% ---------------------------
+In this paper,  \cite{MR3769807} ${0:Start typing here}
+
+\bibliographystyle{plain}
+\bibliography{All}
+
+% --------------------------- {{{
+\begin{luacode}
+  Data['Completed'] = os.date()
+  Data['Decision'] = '---'
+  loadfile("/home/lechen/lua/saveTable.lua")(Data,"table")
+\end{luacode}
+\end{document}
+% }}}
+
+endsnippet
+#}}}
+#{{{ RefLetter "Template for reference letters"
+snippet RefLetter "Template for reference letters" b
+\documentclass[12pt,a4paper,English]{article}% {{{
+% \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{amsmath,amsfonts,amsmath,amssymb,mathtools}
+% \usepackage{fancyhdr}
+\usepackage{graphicx,epsfig,url}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage[final]{pdfpages}
+
+\setlength{\parskip}{\baselineskip}
+
+\textwidth = 16 true cm
+\oddsidemargin = 0 true cm
+\topmargin = - 2.5 true cm
+\textheight = 24 true cm
+\headsep = 1 true cm
+
+\pagestyle{empty}
+\begin{document}
+
+\noindent
+\begin{minipage}{0.65\textwidth}
+\small
+\noindent
+\vspace{2em}
+
+\noindent
+Department of Mathematics and Statistics\\\\ \noindent
+College of Sciences and Mathematics \\\\ \noindent
+203 Parker Hall \\\\
+Auburn University\\\\
+Auburn, Alabama, 36849-5310\\\\
+Tel: 334-844-4290 | Fax: 334-844-6555 \\\\
+Email: \url{le.chen@auburn.edu} \\\\
+\end{minipage}
+\hfill
+\begin{minipage}{0.35\textwidth}
+\epsfig{figure=/home/lechen/Dropbox/workspace/svn/Services/Reference_letters/figs/auburn1.png,width=6.5cm}
+\end{minipage}
+
+\begin{center}
+\vspace{-1.8em}
+\rule{\textwidth}{0.5pt}
+\end{center}
+
+\noindent
+\thispagestyle{empty}
+\vspace{-2.8em}
+\thispagestyle{empty}
+% }}}
+
+\def\FirstName{${1:${VISUAL}}~}
+\def\LastName{${2:${VISUAL}} }
+
+\noindent Dear admission committee,
+% \bigskip
+
+I am very pleased to write this recommendation letter for Mr. \FirstName
+\LastName, who wants to apply for your program. \FirstName was my
+student in the Math 221 --- Linear Algebra class in the fall semester of 2020.
+He did very well in my class and got an A in the end. Due to the online
+teaching setup, it is not easy to control the grade inflation. Nevertheless, I
+sincerely hope all my students could find their best place and I am in full
+support of his application. Please do not hesitate to contact me for any
+information.
+
+Thank you very much for your consideration of \FirstName's application.
+
+
+% {{{ Signatures
+\bigskip
+\noindent
+Sincerely yours,\\\\[1em]
+
+\noindent
+\epsfig{figure=/home/lechen/Dropbox/workspace/svn/.private/Signature2.png,width=3cm}\\\\
+
+\noindent
+Le Chen\\\\[1em]
+Assistant professor\\\\
+\noindent\today
+\end{document}% }}}
+endsnippet
+#}}}
+#{{{ Discussion
+snippet Discussion "Discussions" b
+\documentclass[12pt]{article} %{{{
+
+% -------------------------------------------------
+%   _            ____ _                
+%  | |    ___   / ___| |__   ___ _ __  
+%  | |   / _ \ | |   | '_ \ / _ \ '_ \ 
+%  | |__|  __/ | |___| | | |  __/ | | |
+%  |_____\___|  \____|_| |_|\___|_| |_|
+%
+%  Created on `date`
+%
+%  Document created on `date`
+%
+% -------------------------------------------------
+% Load Packages here
+% -------------------------------------------------
+% {{{
+\usepackage{graphicx,url,subfig}
+% \usepackage[final]{pdfpages}
+\RequirePackage{amsthm,amsmath,amssymb,amscd,mathrsfs,mathtools}
+% \usepackage{luacode}
+\usepackage{enumerate,xcolor}
+\usepackage[text={6.2in,8.6in},centering]{geometry}
+\usepackage{filecontents}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage[colorlinks=true,
+            linkcolor=blue,
+            filecolor=magenta,
+            urlcolor=cyan,
+            citecolor=magenta,
+            pdftitle={Comments},
+            pdfpagemode=FullScreen,
+           ]{hyperref}
+% }}}
+% -------------------------------------------------
+% Bibtex related
+% -------------------------------------------------
+% {{{
+\usepackage[strict=true,style=english]{csquotes}
+% \usepackage[style=alphabetic, %authoryear bibstyle=authoryear,
+%             citestyle=authoryear,
+%             natbib=true,
+%             hyperref=true,
+%             backref=true,
+%             abbreviate=true]{biblatex}
+\usepackage[backend=biber,
+            style=alphabetic,
+            natbib=true,
+            maxbibnames=99,
+            sorting=ynt,
+            abbreviate=true]{biblatex}
+% Options for sorting:
+% nty—sorts entries by name, title, year;
+% nyt—sorts entries by name, year, title;
+% nyvt—sorts entries by name, year, volume, title;
+% anyt—sorts entries by alphabetic label, name, year, title;
+% anyvt—sorts entries by alphabetic label, name, year, volume, title;
+% ynt—sorts entries by year, name, title;
+% ydnt—sorts entries by year (descending order), name, title;
+% none—no sorting. Entries appear in the order they appear in the text.
+
+\AtEveryBibitem{% Clean up the bibtex rather than editing it
+ \clearfield{doi}
+ \clearfield{url}
+ \clearfield{issn}
+ \clearlist{location}
+ \clearfield{month}
+ \clearfield{series}
+
+ \ifentrytype{book}{}{% Remove publisher and editor except for books
+  \clearlist{publisher}
+  \clearname{editor}
+ }
+}
+% \addbibresource{`!p snip.rv = snip.basename`_biber.bib}
+% \addbibresource{All.bib}
+\addbibresource{~/Dropbox/workspace/svn/refdb/All.bib}
+% }}}
+% -------------------------------------------------
+% check references
+% -------------------------------------------------
+% {{{
+% \usepackage{refcheck}
+% \usepackage[notref,notcite]{showkeys}
+% \usepackage[notcite]{showkeys}
+% \usepackage{showkeys}
+% }}}
+% -------------------------------------------------
+% Environments here
+% -------------------------------------------------
+% {{{
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{example}[theorem]{Example}
+% }}}
+% -------------------------------------------------
+%  Define short hand symbols.
+% -------------------------------------------------
+% {{{
+\newcommand{\R}{ {\mathbb{R} }}
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\HH}{\mathcal{H}}
+\renewcommand{\P}{\mathrm{P}}
+\renewcommand{\d}{\mathrm{d}}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+% \renewcommand{\d }{\mathrm{d}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\Var}{\text{\rm Var}}
+\newcommand{\ud}{\text{\rm d}}
+\newcommand{\lip}{\text{\rm Lip}}
+\newcommand{\lup}{\text{\rm L}}
+\newcommand{\logapp}{\stackrel{(\log)}{\asymp}}
+\newcommand{\Norm}[1]{\left|\left|  #1   \right|\right|}
+\DeclareMathOperator{\Cov}{\text{\rm Cov}}
+% }}}
+% }}}
+% -------------------------------------------------
+% Title, authors and date go here.
+% -------------------------------------------------
+% {{{
+\title{Some comments}
+\author{Le Chen}
+\date{\today}
+\begin{document}
+\maketitle
+\noindent
+
+Dear all,
+\bigskip
+% }}}
+% -------------------------------------------------
+% Document begins here
+% -------------------------------------------------
+
+${0:Start here.}
+
+\cite{dalang.frangos:98:stochastic}
+
+% -------------------------------------------------
+% Signature
+% -------------------------------------------------
+\bigskip
+\noindent
+Best regards,
+
+\noindent
+Le
+% -------------------------------------------------
+% References go here.
+% -------------------------------------------------
+% --------------------------- {{{
+\begingroup
+\global\let\savedifeof=\ifeof
+\def\ifeof#1{\global\let\ifeof=\savedifeof\iftrue}%
+\begin{filecontents}{`!p snip.rv = snip.basename`.bib}
+@Article{    dalang.frangos:98:stochastic,
+  author  = {Dalang, Robert C. and Frangos, N. E.},
+  title    = {The stochastic wave equation in two spatial dimensions},
+  journal  = {Ann. Probab.},
+  fjournal  = {The Annals of Probability},
+  volume  = {26},
+  year    = {1998},
+  number  = {1},
+  pages    = {187--212},
+  issn    = {0091-1798},
+  mrclass  = {60H15},
+  mrnumber  = {1617046},
+  mrreviewer  = {R\'{e}mi L\'{e}andre},
+  doi    = {10.1214/aop/1022855416},
+  url    = {https://doi.org/10.1214/aop/1022855416}
+}
+\end{filecontents}
+\printbibliography[title={References}]
+\end{document}
+% }}}
+
+endsnippet
+#}}}
+#{{{ PapisNotes
+snippet PapisNotes "Papis Notes" b
+\documentclass[12pt]{article} %{{{
+\usepackage[text={6.2in,8.6in},centering]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathrsfs,mathtools}
+\usepackage{luacode}
+\usepackage{pdfpages}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage{comment}
+\excludecomment{codes}
+\usepackage[colorlinks=true,
+            linkcolor=blue,
+            filecolor=magenta,
+            urlcolor=cyan,
+            citecolor=magenta,
+            pdftitle={Reviewing report},
+            pdfpagemode=FullScreen,
+           ]{hyperref}
+\usepackage[strict=true,style=english]{csquotes}
+\setlength{\parskip}{0.5cm plus4mm minus3mm}
+% \usepackage[style=alphabetic, %authoryear
+%             bibstyle=authoryear,
+%             citestyle=authoryear,
+%             natbib=true,
+%             hyperref=true,
+%             backref=true,
+%             abbreviate=true]{biblatex}
+% -------------------------------------------------
+% BibTex setup
+% -------------------------------------------------
+\usepackage{amsrefs}
+
+\renewcommand{\MR}[1]{~\href{https://mathscinet.ams.org/mathscinet-getitem?mr=MR#1}{MR#1}.}
+
+\BibSpec{article}{%
+    +{}  {\PrintAuthors}                {author}
+    +{,} { \textit}                     {title}
+    +{.} { }                            {part}
+    +{:} { \textit}                     {subtitle}
+    +{,} { \PrintContributions}         {contribution}
+    +{.} { \PrintPartials}              {partial}
+    +{,} { }                            {journal}
+    +{}  { \textbf}                     {volume}
+    +{}  { \PrintDatePV}                {date}
+    +{,} { \issuetext}                  {number}
+    +{,} { \eprintpages}                {pages}
+    +{,} { }                            {status}
+    +{,} { \url}                        {url}
+    +{,} { \PrintDOI}                   {doi}
+    +{,} { available at \eprint}        {eprint}
+    +{}  { \parenthesize}               {language}
+    +{}  { \PrintTranslation}           {translation}
+    +{;} { \PrintReprint}               {reprint}
+    +{.} { }                            {note}
+    +{.} {}                             {transition}
+    +{}  {\SentenceSpace \PrintReviews} {review}
+}
+
+% -------------------------------------------------
+% check references
+% -------------------------------------------------
+% \usepackage{refcheck}
+\usepackage[notref,notcite]{showkeys}
+% \usepackage[notcite]{showkeys}
+% \usepackage{showkeys}
+% \usepackage{tocloft}
+% -------------------------------------------------
+% Environment
+% -------------------------------------------------
+\numberwithin{equation}{section}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{condition}[theorem]{Condition}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ud}{\mathtt{d}}
+\newcommand{\Norm}[1]{\left|\left|  #1   \right|\right|}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\lp}[2]{{\it Line #1, page #2:~}}
+
+\begin{luacode}
+	function file_exists(name)
+		local f=io.open(name,"r")
+		if f~=nil then io.close(f) return true else return false end
+	end
+
+	lfs = require("lfs")
+	if file_exists("notes.tex")==false then
+		os.execute("touch notes.tex")
+	end
+	if file_exists("All.bib")==false then
+		 os.execute("ln -s ~/Dropbox/workspace/svn/refdb/All.bib All.bib")
+	end
+	if file_exists("table")==false  then
+		 os.execute("/home/lechen/Dropbox/Research-References/scripts/yaml2table.lua")
+	end
+	Data = dofile("table")
+\end{luacode}
+
+% define \thispaper for citation.
+\luaexec{tex.sprint('\\\\def\\\\thispaper{\\\\cite{' .. Data[1]['CiteKey'] .. '}\\\\:}')}
+
+\begin{document}
+% \noindent
+
+\begin{center}
+	Le Chen's notes on:\\\\[1em]
+	\begin{minipage}{0.8\textwidth}
+	  \begin{center}
+      \Large
+	    \luaexec{tex.sprint(Data[1]['title'])}
+	    \luaexec{tex.sprint('\\\\cite{' .. Data[1]['CiteKey'] .. '}')}
+	  \end{center}
+	\end{minipage}
+	\\\\[0.5em]
+	by
+	\\\\[0.5em]
+	\luaexec{tex.sprint(Data[1]['author'])}
+
+
+	\bigskip\today\small
+
+	Cite as
+
+	\luaexec{tex.sprint(Data[1]['CiteKey'])}
+\end{center}
+% % \vskip .3in }}}
+
+% ---------------------------
+
+
+In this paper \thispaper,  we have
+
+
+% --------------------------- {{{
+\bibliographystyle{plain}
+\bibliography{All}
+\end{document}
+% }}}
+
+endsnippet
+#}}}
+
+# The following are bib
+#{{{ bib
+snippet bib "bibliography" b
+% -------------------------------------------------
+% References go here.
+% -------------------------------------------------
+\begin{thebibliography}{999}
+
+\bibitem{${4:abbre}}
+${1:authors}
+\newblock ${2:title}
+\newblock {\em ${3:journal}}, .
+\end{thebibliography} $0
+endsnippet
+#}}}
+#{{{ bibitem
+snippet bibitem "bibitem" b
+\bibitem{${4:abbre}}%{{{
+${1:authors}.
+\newblock ${2:title}.
+\newblock {\em ${3:journal}},$0.
+% }}}
+endsnippet
+#}}}
+
+# The following are Lualatex related.
+#{{{ luap
+snippet luap "luaexec tex.sprint"
+\luaexec{tex.sprint($0)}
+endsnippet
+#}}}
+
+
+# The following is from
+# https://github.com/gillescastel/latex-snippets/blob/master/tex.snippets
+# evaluate using sympy or mathematica
+# {{{
+snippet sympy "sympyblock " w
+sympy $1 sympy$0
+endsnippet
+
+priority 10000
+snippet 'sympy(.*)sympy' "sympy" wr
+`!p
+from sympy import *
+x, y, z, t = symbols('x y z t')
+k, m, n = symbols('k m n', integer=True)
+f, g, h = symbols('f g h', cls=Function)
+init_printing()
+snip.rv = eval('latex(' + match.group(1).replace('\\', '').replace('^', '**').replace('{', '(').replace('}', ')') + ')')
+`
+endsnippet
+
+priority 1000
+snippet math "mathematicablock" w
+math $1 math$0
+endsnippet
+
+priority 10000
+snippet 'math(.*)math' "math" wr
+`!p
+import subprocess
+code = match.group(1)
+code = 'ToString[' + code + ', TeXForm]'
+snip.rv = subprocess.check_output(['wolframscript', '-code', code]).strip().decode('ascii')
+`
+endsnippet
+# }}}
+
+# Some other email related ones:
+# Here is my zoom link.{{{
+snippet zoomAU "My Zoom Link for Emory"
+
+Le Chen is inviting you to a scheduled Auburn University Zoom e-meeting. If you're a new participant, we have a quick start guide here: https://aub.ie/zoomquickstart
+
+Topic: Le Chen's Personal Meeting Room
+
+Join from PC, Mac, Linux, iOS or Android:
+
+  https://auburn.zoom.us/j/8141875411
+
+Connect using Computer/Device audio if possible.
+
+Or Telephone: Meeting ID: 814 187 5411
+  Dial: +1 646 876 9923 (US Toll)
+  or +1 301 715 8592 (US Toll)
+
+Or an H.323/SIP room system:
+  H.323: 162.255.37.11 (US West) or 162.255.36.11 (US East)
+  Meeting ID: 814 187 5411
+
+SIP: 8141875411@zoomcrc.com
+
+endsnippet
+#}}}
+# Here is my zoom link.{{{
+snippet myzoom "My Zoom Link for Emory"
+  Join Zoom Meeting
+  https://emory.zoom.us/j/8015583097
+
+  Meeting ID: 801 558 3097
+  One tap mobile
+  +14703812552,,8015583097# US (Atlanta)
+  +14702509358,,8015583097# US (Atlanta)
+
+  Dial by your location
+          +1 470 381 2552 US (Atlanta)
+          +1 470 250 9358 US (Atlanta)
+          +1 646 558 8656 US (New York)
+          +1 301 715 8592 US (Washington D.C)
+          +1 312 626 6799 US (Chicago)
+          +1 669 900 6833 US (San Jose)
+          +1 253 215 8782 US (Tacoma)
+          +1 346 248 7799 US (Houston)
+  Meeting ID: 801 558 3097
+  Find your local number: https://emory.zoom.us/u/asqwS3mtf
+
+  Join by SIP
+  8015583097@zoomcrc.com
+
+  Join by H.323
+  162.255.37.11 (US West)
+  162.255.36.11 (US East)
+  115.114.131.7 (India Mumbai)
+  115.114.115.7 (India Hyderabad)
+  213.19.144.110 (Amsterdam Netherlands)
+  213.244.140.110 (Germany)
+  103.122.166.55 (Australia)
+  64.211.144.160 (Brazil)
+  69.174.57.160 (Canada)
+  207.226.132.110 (Japan)
+  Meeting ID: 801 558 3097
+endsnippet
+#}}}
+#{{{ FPD "Thanks for confirmation"
+snippet FPD "Thanks for confirmation"
+
+Hello, $0,
+
+Thank you very much for your confirmation. We are looking forward to meeting you in Vegas~!
+
+Best regards,
+
+Le
+endsnippet
+#}}}
+#{{{ FWTW "From word to word"
+snippet FWTW "From word to word"
+\`\`$1" $\to$ \`\`$1"
+endsnippet
+#}}}
+#{{{ TalkU "Upload Talk to FPDs" b
+snippet TalkU "Upload Talk to FPDs" b
+Dear $0,
+
+Thank you very much. Your exam files have been well received. I will let you know if I meet any problems reading your files. Wish you have a nice winter break~!
+
+Best regards,
+
+Le
+endsnippet
+#}}}
+
+# Mathematica related and codes related
+#{{{ ToExp "ToExpression[..., TeXForm, HoldForm]"
+snippet ToExp "ToExpression[..., TeXForm, HoldForm]"
+% make sure all \ be replaced by \\\\
+ToExpression["${0:LaTexExpression}", TeXForm, HoldForm]
+endsnippet
+#}}}
+#{{{ Codes "Wrting codes to latex" b
+snippet Codes "Wrting codes to latex" b
+% Make sure to have the following two lines in the beginning
+% Make sure no spaces are placed in front of environment.
+% \usepackage{comment}
+% \excludecomment{codes}
+\begin{codes}% {{{ Mathematica
+
+<<JavaGraphics`
+ToExpression["${0:LaTexExpression}", TeXForm, HoldForm]
+
+\end{codes}
+% }}}
+endsnippet
+#}}}
+
+# experiments
+#{{{ foo "get file basename"
+snippet foo "get file basename"
+`!p snip.rv = snip.basename`
+endsnippet
+#}}}
+#{{{ stet4  "Run a system command"
+snippet stet4
+`#!/usr/bin/env bash
+ln -s /home/lechen/Dropbox/workspace/svn/refdb/All.bbl All.bbl
+echo "Chen Le Test"
+echo "$(pwd)"
+`
+
+Something el\begin{align*}
+s
+
+`
+!p snip.rv = snip.path
+`
+endsnippet
+
+snippet bibtex "bibtex" b
+
+% -------------------------------------------------
+% BibTex Setup
+% -------------------------------------------------
+\usepackage[strict=true,style=english]{csquotes}
+\setlength{\parskip}{0.5cm plus4mm minus3mm}
+\usepackage[
+  backend=biber,
+  style=alphabetic,
+  natbib=true,
+  abbreviate=true
+  ]{biblatex}
+\addbibresource{All.bib}
+% \addbibresource{./`!v expand('%:r')`_biber.bib}
+% \printbibliography[title={References}]
+endsnippet
+#}}}
+# vim:ft=snippets:
+

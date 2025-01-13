@@ -1,0 +1,158 @@
+priority -50
+
+###########################################################################
+#                            TextMate Snippets                            #
+###########################################################################
+#{{{ ife "Conditional if..else (ife)"
+snippet ife "Conditional if..else (ife)"
+if ($1) {
+	${2:# body...}
+}
+else {
+	${3:# else...}
+}
+endsnippet
+#}}}
+#{{{ ifee "Conditional if..elsif..else (ifee)"
+snippet ifee "Conditional if..elsif..else (ifee)"
+if ($1) {
+	${2:# body...}
+}
+elsif ($3) {
+	${4:# elsif...}
+}
+else {
+	${5:# else...}
+}
+endsnippet
+#}}}
+#{{{ xunless "Conditional one-line (unless)"
+snippet xunless "Conditional one-line (unless)"
+${1:expression} unless ${2:condition};
+endsnippet
+#}}}
+#{{{ xif "Conditional one-line (xif)"
+snippet xif "Conditional one-line (xif)"
+${1:expression} if ${2:condition};
+endsnippet
+#}}}
+#{{{ sub "Function (sub)"
+snippet sub "Function (sub)"
+sub ${1:function_name} {
+	${2:# body...}
+}
+endsnippet
+#}}}
+#{{{ xfore "Loop one-line (xforeach)"
+snippet xfore "Loop one-line (xforeach)"
+${1:expression} foreach @${2:array};
+endsnippet
+#}}}
+#{{{ xwhile "Loop one-line (xwhile)"
+snippet xwhile "Loop one-line (xwhile)"
+${1:expression} while ${2:condition};
+endsnippet
+#}}}
+#{{{ test "Test"
+snippet test "Test"
+#!/usr/bin/env perl -w
+
+use strict;
+use Test::More tests => ${1:1};
+use ${2:ModuleName};
+
+ok(${3:assertion});
+
+endsnippet
+#}}}
+#{{{ class "class"
+snippet class "class"
+package ${1:ClassName};
+
+${2:use parent qw(${3:ParentClass});}${2/.+/\n\n/}sub new {
+	my $class = shift;
+	$class = ref $class if ref $class;
+	my $self = bless {}, $class;
+	$self;
+}
+
+1;
+
+endsnippet
+#}}}
+#{{{ eval "eval"
+snippet eval "eval"
+local $@;
+eval {
+	${1:# do something risky...}
+};
+if (my $${2:exception} = $@) {
+	${3:# handle failure...}
+}
+endsnippet
+#}}}
+#{{{ for "for"
+snippet for "for"
+for (my $${1:var} = 0; $$1 < ${2:expression}; $$1++) {
+	${3:# body...}
+}
+endsnippet
+#}}}
+#{{{ fore "foreach"
+snippet fore "foreach"
+foreach ${1:my $${2:x}} (@${3:array}) {
+	${4:# body...}
+}
+endsnippet
+#}}}
+#{{{ if "if"
+snippet if "if"
+if ($1) {
+	${2:# body...}
+}
+endsnippet
+#}}}
+#{{{ slurp "slurp"
+snippet slurp "slurp"
+my $${1:var} = do { local $/ = undef; open my $fh, '<', ${2:$file}; <$fh> };
+endsnippet
+#}}}
+#{{{ unless "unless"
+snippet unless "unless"
+unless ($1) {
+	${2:# body...}
+}
+endsnippet
+#}}}
+#{{{ while "while"
+snippet while "while"
+while ($1) {
+	${2:# body...}
+}
+endsnippet
+#}}}
+#{{{ until "until"
+snippet until "until"
+until ($1) {
+	${2:# body...}
+}
+endsnippet
+#}}}
+
+# Some of my own snippets
+#{{{ front "front"
+snippet front "Front matters" g
+#!/usr/bin/env perl
+
+if ($#ARGV != 0 ) {
+	print "usage: $ARGV[0] arXivId\n";
+	print "Searching e.g. 1307.0600\n";
+	print "https://arxiv.org/abs/1307.0600\n";
+	print "By Le CHEN, (chenle02@gmail.com)\n";
+	print "`date`\n";
+	exit;
+}
+endsnippet
+#}}}
+
+# vim:ft=snippets:

@@ -1,0 +1,37 @@
+
+priority -50
+
+#################################
+# Snippets for the yaml files   #
+# By Le Chen                    #
+#################################
+#{{{ marks "insert book marks in papis" b
+snippet marks "insert book marks in papis" b
+marks:
+- name: TOC
+	value: ${0:NAME}
+endsnippet
+#}}}
+#{{{ tags "insert tags in papis" b
+snippet tags "insert tags in papis" b
+tags:
+- ${0:TAG ME}
+endsnippet
+#}}}
+#{{{ notes "Writing a note" b
+snippet notes "Writing a note" b
+notes: notes.tex
+endsnippet
+#}}}
+#{{{ snippet cite "CiteKey:" b
+snippet cite "CiteKey:" b
+CiteKey: ${0:NAME}
+endsnippet
+#}}}
+#{{{ snippet file "files: - output.pdf" b
+snippet file "files: - output.pdf" b
+files:
+- output.pdf
+endsnippet
+#}}}
+# vim:ft=snippets:
