@@ -73,29 +73,29 @@ return {
     }
 
     -- Custom input mappings
-  -- -- Still not working
-    vim.g.vimtex_imaps = {
-      {
-        lhs = "o",
-        rhs = "\\omega",
-        expr = true,
-        leader = "\\",
-        wrapper = "omega",
-      },
-    vim.cmd([[
-      call vimtex#imaps#add_map({
-            \ 'lhs' : 'r',
-            \ 'rhs' : 'vimtex#imaps#style_math("mathrm")',
-            \ 'expr' : 1,
-            \ 'leader' : '#',
-            \ 'wrapper' : 'vimtex#imaps#wrap_math'
-              \})
-      ]]) -- }
+    -- -- Still not working
+    -- vim.g.vimtex_imaps = {
+    --   {
+    --     lhs = "o",
+    --     rhs = "\\omega",
+    --     expr = true,
+    --     leader = "\\",
+    --     wrapper = "omega",
+    --   },
+    -- vim.cmd([[
+    --   call vimtex#imaps#add_map({
+    --         \ 'lhs' : 'r',
+    --         \ 'rhs' : 'vimtex#imaps#style_math("mathrm")',
+    --         \ 'expr' : 1,
+    --         \ 'leader' : '#',
+    --         \ 'wrapper' : 'vimtex#imaps#wrap_math'
+    --           \})
+    --   ]]) -- }
 
-      -- Autocommands for key mappings
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "tex",
-        callback = function()
+    -- Autocommands for key mappings
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "tex",
+      callback = function()
         vim.api.nvim_set_keymap("n", ",b", ":VimtexErrors<CR>:normal <C-w>w<CR>", { noremap = true, silent = true })
         vim.api.nvim_set_keymap("n", ",n", ":cnext<CR>:normal zz<CR>", { noremap = true, silent = true })
         vim.api.nvim_set_keymap("n", ",m", ":cprevious<CR>:normal zz<CR>", { noremap = true, silent = true })

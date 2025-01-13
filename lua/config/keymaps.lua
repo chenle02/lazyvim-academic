@@ -6,8 +6,8 @@
 -- Neovim keybindings configuration
 local keymap = vim.keymap
 
--- Set leader key
-vim.g.mapleader = "\\" -- Set leader key to backslash
+-- -- Set leader key
+-- vim.g.mapleader = "\\" -- Set leader key to backslash
 
 -- Spelling: Choose the first suggestion
 keymap.set("n", "]ss", "]sz=1<CR><CR>")
