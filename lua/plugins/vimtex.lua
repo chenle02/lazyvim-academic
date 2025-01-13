@@ -1,6 +1,7 @@
 return {
   "lervag/vimtex",
   lazy = false, -- Ensure VimTeX is loaded immediately
+  ft = { "tex", "latex" }, -- Ensure it only loads for LaTeX files
   init = function()
     -- VimTeX configuration
     vim.g.vimtex_view_method = "zathura"
@@ -91,6 +92,12 @@ return {
     --         \ 'wrapper' : 'vimtex#imaps#wrap_math'
     --           \})
     --   ]]) -- }
+    -- vim.cmd([[
+    --   call vimtex#imaps#add_map({ 'lhs' : '1', 'rhs' : '\ell',     'wrapper' : 'vimtex#imaps#wrap_trivial'})
+    --   call vimtex#imaps#add_map({ 'lhs' : '2', 'rhs' : '\partial', 'wrapper' : 'vimtex#imaps#wrap_trivial'})
+    --   call vimtex#imaps#add_map({ 'lhs' : '3', 'rhs' : '\eta',     'wrapper' : 'vimtex#imaps#wrap_trivial'})
+    --   call vimtex#imaps#add_map({ 'lhs' : 'o', 'rhs' : '\Omega',   'wrapper' : 'vimtex#imaps#wrap_trivial'})
+    -- ]])
 
     -- Autocommands for key mappings
     vim.api.nvim_create_autocmd("FileType", {
@@ -107,5 +114,8 @@ return {
 
     -- Spell checking
     vim.opt.spelllang = { "en_gb" }
+
+    -- Source your LaTeX-related Vimscript file
+    vim.cmd("source ~/.config/nvim/vimscript/latex_setup.vim")
   end,
 }
