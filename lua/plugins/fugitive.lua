@@ -28,27 +28,4 @@ return {
       augroup END
     ]])
   end,
-  -- config = function()
-  --   -- Define custom autocommands
-  --   vim.api.nvim_create_augroup("GitMappings", { clear = true })
-  --
-  --   -- Gitcommit filetype mappings
-  --   vim.api.nvim_create_autocmd("FileType", {
-  --     group = "GitMappings",
-  --     pattern = "gitcommit",
-  --     callback = function()
-  --       vim.api.nvim_buf_set_keymap(0, "n", "<leader>gp", ":w<CR>:G push<CR>", { noremap = true, silent = true })
-  --       vim.api.nvim_buf_set_keymap(0, "n", "<leader><leader>", ":wq<CR>", { noremap = true, silent = true })
-  --     end,
-  --   })
-  --
-  --   -- Fugitive filetype mappings
-  --   vim.api.nvim_create_autocmd("FileType", {
-  --     group = "GitMappings",
-  --     pattern = "fugitive",
-  --     callback = function()
-  --       vim.api.nvim_buf_set_keymap(0, "n", "<leader><leader>", ":G push<CR>", { noremap = true, silent = true })
-  --     end,
-  --   })
-  -- end,
 }
