@@ -41,10 +41,10 @@ keymap.set("n", "<leader>d", '"_d')
 keymap.set("x", "<leader>d", '"_d')
 
 -- Paste without overwriting register
-keymap.set("v", "<leader>p", '"_dP')
+keymap.set("v", "\\p", '"_dP')
 
 -- Close all other windows
-keymap.set("n", "<leader>o", ":only<CR>", { silent = true })
+keymap.set("n", "\\o", ":only<CR>", { silent = true })
 
 -- Close all buffers except the current one
 -- https://stackoverflow.com/questions/4545275/vim-close-all-buffers-but-this-one
@@ -71,8 +71,8 @@ keymap.set("n", "<space>k", ":cprevious<CR>zz", { silent = true })
 
 -- FzfLua
 keymap.set("n", "<space>ll", ":FzfLua lines<cr>", { silent = true })
-keymap.set("n", "<leader>[", ":FzfLua files<cr>", { silent = true })
+keymap.set("n", "\\[", ":FzfLua files<cr>", { silent = true })
 
 -- Buffer nevigations
 -- Navigate to the previous buffer
-keymap.set("n", "<leader>]", ":bp<CR>", { silent = true })
+keymap.set("n", "\\]", ":bp<CR>", { silent = true })

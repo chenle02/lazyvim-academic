@@ -77,16 +77,16 @@ return {
           theme = "ivy",
         },
         frecency = {
-          db_root = "$HOME/.local/share/nvim/",
+          db_root = vim.fn.expand("$HOME/.local/share/nvim/"),
           show_scores = false,
           show_unindexed = true,
           ignore_patterns = { "*.git/*", "*/tmp/*" },
           disable_devicons = false,
           workspaces = {
-            ["conf"] = "$HOME/.config",
-            ["data"] = "$HOME/.local/share",
-            ["project"] = "$HOME/Dropbox/workspace/svn/",
-            ["wiki"] = "$HOME/Dropbox/vimwiki",
+            ["conf"] = vim.fn.expand("$HOME/.config"),
+            ["data"] = vim.fn.expand("$HOME/.local/share"),
+            ["project"] = vim.fn.expand("$HOME/Dropbox/workspace/svn/"),
+            ["wiki"] = vim.fn.expand("$HOME/Dropbox/vimwiki"),
           },
         },
         bibtex = {
