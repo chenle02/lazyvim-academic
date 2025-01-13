@@ -2,14 +2,13 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
-      -- Merge your custom settings with LazyVim's defaults
+      -- Update the languages to install
       opts.ensure_installed = {
         "c",
         "lua",
         "vim",
-        "vimdoc",
+        "vimdoc", -- Use vimdoc instead of help
         "python",
-        "help",
         "bash",
         "query",
         "yaml",
@@ -20,7 +19,7 @@ return {
       opts.auto_install = true
       opts.ignore_install = { "latex" }
       opts.highlight = {
-        enable = false, -- Disable highlighting
+        enable = false,
         additional_vim_regex_highlighting = false,
       }
       opts.incremental_selection = {
@@ -81,8 +80,8 @@ return {
       }
       opts.rainbow = {
         enable = true,
-        extended_mode = true, -- Also highlight non-bracket delimiters
-        max_file_lines = nil, -- No limit
+        extended_mode = true,
+        max_file_lines = nil,
       }
       opts.playground = {
         enable = true,
