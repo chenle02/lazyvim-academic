@@ -474,11 +474,12 @@ autocmd FileType tex vnoremap <silent> gnn "zy:call GotoNotesCiteKey(@z)<CR>
 " }}}
 
 " {{{ 20. Here are some abbreviations
-ab matern Mat\'ern
+ab matern Mat\'ern 
 " }}}
 
 " The following is the update references.
 let @a='gccyi`0jvi{üR+@7kb\b'
 
 " echom "LatexProject.vim has been sourced~! -- Le Chen"
+
 
