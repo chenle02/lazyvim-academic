@@ -70,7 +70,7 @@ keymap.set("n", "<space>j", ":cnext<CR>zz", { silent = true })
 keymap.set("n", "<space>k", ":cprevious<CR>zz", { silent = true })
 
 -- FzfLua
-keymap.set("n", "<space>ll", ":FzfLua lines<cr>", { silent = true })
+keymap.set("n", "//", ":FzfLua lines<cr>", { silent = true })
 keymap.set("n", "\\[", ":FzfLua files<cr>", { silent = true })
 
 -- Buffer nevigations
