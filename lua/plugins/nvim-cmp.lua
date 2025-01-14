@@ -4,6 +4,9 @@ return {
   {
     "hrsh7th/nvim-cmp",
 
+    event = "InsertEnter", -- Load when entering insert mode
+    enabled = true,
+
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "neovim/nvim-lspconfig",
@@ -13,7 +16,7 @@ return {
       "tzachar/fuzzy.nvim",
       "tzachar/cmp-fuzzy-path", -- Optional fuzzy path source
       "hrsh7th/cmp-omni",
-      "hrsh7th/cmp-spell",
+      -- "hrsh7th/cmp-spell",
       "github/copilot.vim",
       -- for vimtex
       "micangl/cmp-vimtex",
@@ -51,9 +54,7 @@ return {
         { name = "path" },
         { name = "tags", keyword_length = 2 },
         { name = "fuzzy_path" },
-        { name = "omni" },
         { name = "vimtex" },
-        { name = "spell" },
         { name = "cmp_pandoc" },
         { name = "copilot", option = { label = "[copilot]" } },
         { name = "tmux", option = { all_panes = false, label = "[tmux]" } },
@@ -69,7 +70,7 @@ return {
         documentation = {
           border = "rounded", -- Style of the border
           winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder", -- Highlighting
-          max_width = 80, -- Maximum width of the documentation window
+          max_width = 40, -- Maximum width of the documentation window
           max_height = 20, -- Maximum height of the documentation window
         },
       }
@@ -79,21 +80,24 @@ return {
         format = function(entry, vim_item)
           vim_item.menu = ({
             nvim_lsp = "[LSP]",
-            ultisnips = "[Snippets]",
             buffer = "[Buffer]",
             path = "[Path]",
-            tags = "[Tags]",
-            fuzzy_path = "[FuzzyPath]",
-            omni = "[Omni]",
-            vimtex = "[VimTex]",
-            spell = "[Spell]",
-            copilot = "[Copilot]",
-            tmux = "[Tmux]",
+            vimtex = vim_item.menu,
           })[entry.source.name]
           return vim_item
         end,
       }
+
       -- Additional configurations for specific filetypes
+      cmp.setup.filetype("tex", {
+        sources = cmp.config.sources({
+          { name = "vimtex" },
+          { name = "buffer" },
+          { name = "path" },
+          { name = "ultisnips" },
+        }),
+      })
+
       cmp.setup.filetype("gitcommit", {
         { name = "nvim_lsp" },
         { name = "vsnip" }, -- For vsnip users.
@@ -104,11 +108,6 @@ return {
           keyword_pattern = [[\k\+]],
         } },
         { name = "path" },
-        { name = "omni" },
-        -- { name = 'cmdline' },
-        -- { name = 'zsh' },
-        -- { name = 'calc' },
-        { name = "spell" },
         { name = "copilot", option = {
           label = "[copilot]",
         } },
@@ -143,14 +142,6 @@ return {
         }),
       })
 
-      -- Set up the Omni function for LaTeX files
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "tex",
-        callback = function()
-          vim.bo.omnifunc = "vimtex#complete#omnifunc"
-        end,
-      })
-
       -- Setup enhanced LSP capabilities
       local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
       local lspconfig = require("lspconfig")
@@ -160,47 +151,47 @@ return {
       lspconfig.tsserver.setup({ capabilities = capabilities })
     end,
   },
-  -- {
-  --   "micangl/cmp-vimtex",
-  --   dependencies = {
-  --     "hrsh7th/nvim-cmp",
-  --     "lervag/vimtex",
-  --   },
-  --   config = function()
-  --     require("cmp_vimtex").setup({
-  --       additional_information = {
-  --         info_in_menu = true,
-  --         info_in_window = true,
-  --         info_max_length = 60,
-  --         match_against_info = true,
-  --         origin_in_menu = true,
-  --         symbols_in_menu = true,
-  --         bib_highlighting = true,
-  --         highlight_colors = {
-  --           colon_group = "Normal",
-  --           default_key_group = "PreProc",
-  --           default_value_group = "String",
-  --           important_key_group = "Normal",
-  --           important_value_group = "Identifier",
-  --         },
-  --         highlight_links = {
-  --           Annote = "Default",
-  --         },
-  --       },
-  --       bibtex_parser = {
-  --         enabled = true,
-  --       },
-  --       search = {
-  --         browser = "xdg-open",
-  --         default = "google_scholar",
-  --         search_engines = {
-  --           google_scholar = {
-  --             name = "Google Scholar",
-  --             get_url = require("cmp_vimtex").url_default_format("https://scholar.google.com/scholar?hl=en&q=%s"),
-  --           },
-  --         },
-  --       },
-  --     })
-  --   end,
-  -- },
+  {
+    "micangl/cmp-vimtex",
+    dependencies = { "hrsh7th/nvim-cmp" }, -- Ensure nvim-cmp is loaded first
+    ft = { "tex", "latex" }, -- Load only for LaTeX files
+    config = function()
+      require("cmp_vimtex").setup({
+        additional_information = {
+          info_in_menu = true,
+          info_in_window = true,
+          info_max_length = 60,
+          match_against_info = true,
+          origin_in_menu = true,
+          symbols_in_menu = true,
+          bib_highlighting = true,
+          highlight_colors = {
+            colon_group = "Normal",
+            default_key_group = "PreProc",
+            default_value_group = "String",
+            important_key_group = "Normal",
+            important_value_group = "Identifier",
+          },
+          highlight_links = {
+            Annote = "Default",
+          },
+        },
+
+        bibtex_parser = {
+          enabled = true,
+        },
+
+        search = {
+          browser = "xdg-open",
+          default = "google_scholar",
+          search_engines = {
+            google_scholar = {
+              name = "Google Scholar",
+              get_url = require("cmp_vimtex").url_default_format("https://scholar.google.com/scholar?hl=en&q=%s"),
+            },
+          },
+        },
+      })
+    end,
+  },
 }
