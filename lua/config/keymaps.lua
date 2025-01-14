@@ -76,3 +76,25 @@ keymap.set("n", "\\[", ":FzfLua files<cr>", { silent = true })
 -- Buffer nevigations
 -- Navigate to the previous buffer
 keymap.set("n", "\\]", ":bp<CR>", { silent = true })
+
+-- toggle conceal level
+-- https://github.com/tpope/vim-unimpaired/issues/105
+-- Toggle conceallevel between 0 and 2
+vim.keymap.set("n", "=oe", function()
+  vim.opt_local.conceallevel = vim.opt_local.conceallevel:get() == 0 and 2 or 0
+end, { desc = "Toggle conceallevel" })
+
+-- Adjust conceallevel to 0 or 2
+vim.keymap.set("n", "coe", function()
+  vim.opt_local.conceallevel = vim.opt_local.conceallevel:get() == 0 and 2 or 0
+end, { desc = "Adjust conceallevel to 0 or 2" })
+
+-- Decrease conceallevel
+vim.keymap.set("n", "[oe", function()
+  vim.opt_local.conceallevel = math.max(vim.opt_local.conceallevel:get() - 1, 0)
+end, { desc = "Decrease conceallevel" })
+
+-- Increase conceallevel
+vim.keymap.set("n", "]oe", function()
+  vim.opt_local.conceallevel = math.min(vim.opt_local.conceallevel:get() + 1, 2)
+end, { desc = "Increase conceallevel" })
