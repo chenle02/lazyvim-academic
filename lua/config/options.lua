@@ -2,6 +2,10 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 --
+-- Set up the leader keys first
+vim.g.mapleader = "\\"
+vim.g.maplocalleader = "\\"
+
 -- Neovim options configuration for LazyVim setup
 local opt = vim.opt
 
