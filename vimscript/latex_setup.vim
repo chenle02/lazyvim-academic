@@ -35,7 +35,7 @@ function! RunLuaLatex(TexFileName)
   let g:asyncrun_exit = 'silent :lua require("notify")("Asyncrun has done~!", "info")'
 endfunction
 
-autocmd FileType tex noremap <silent> <leader><leader> :call RunLuaLatex(expand("%"))<cr>
+autocmd FileType tex noremap <silent> \\ :call RunLuaLatex(expand("%"))<cr>
 " autocmd FileType tex noremap <silent> <leader><leader> :w<cr>:VimtexCompile<cr>
 " autocmd FileType tex noremap <leader><leader> :update<bar>:AsyncRun! lualatex --shell-escape -synctex=1 %<CR>
 " autocmd BufRead,BufNewFile,BufEnter,BufWinEnter tex <leader><leader> :update<bar>:AsyncRun! lualatex --shell-escape -synctex=1 %<CR>
@@ -50,8 +50,8 @@ function! LatexBiber()
   echom "Done biber now..."
   " let g:asyncrun_exit = 'silent :lua require("notify")("Asyncrun has done~!", "info")'
 endfunction
-autocmd FileType tex noremap <leader>b :update<bar>:call LatexBiber()<CR>
-autocmd FileType tex noremap <leader>B :update<bar>:!bibtex %:r<CR>
+autocmd FileType tex noremap \b :update<bar>:call LatexBiber()<CR>
+autocmd FileType tex noremap \B :update<bar>:!bibtex %:r<CR>
 
 function! CopyAllBib()
   " echom "Run biber now..."
@@ -61,7 +61,7 @@ function! CopyAllBib()
   exec execstr
   let g:asyncrun_exit = 'silent :lua require("notify")("Synchronized All.bib~! -- Le", "info")'
 endfunction
-autocmd FileType tex noremap <leader>i :update<bar>:call CopyAllBib()<CR>
+autocmd FileType tex noremap \i :update<bar>:call CopyAllBib()<CR>
 
 function! MyUpdateBib()
   let execstr = ":r " . expand("%:r") . "_biber.bib"
@@ -84,7 +84,7 @@ endfunction
 
 autocmd FileType,BufEnter,BufWinEnter yaml noremap ff :call SyncYamlZathura()<CR>
 " autocmd FileType tex set foldmethod=marker
-autocmd FileType tex.lua noremap <leader><leader> :Lualatax <CR>
+autocmd FileType tex.lua noremap \\ :Lualatax <CR>
 
 au FileType tex let b:AutoPairs = {"'":"'",'"':'"', '':''}
 
