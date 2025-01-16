@@ -13,29 +13,30 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-cmdline",
-      "tzachar/fuzzy.nvim",
-      "tzachar/cmp-fuzzy-path", -- Optional fuzzy path source
       "hrsh7th/cmp-omni",
       -- "hrsh7th/cmp-spell",
       "github/copilot.vim",
       -- for vimtex
       "micangl/cmp-vimtex",
       -- For vsnip users.
-      "hrsh7th/cmp-vsnip",
-      "hrsh7th/vim-vsnip",
       "aspeddro/cmp-pandoc.nvim",
+      "quangnguyen30192/cmp-nvim-ultisnips", -- UltiSnips integration
     },
 
     opts = function(_, opts)
       local cmp = require("cmp")
-      local matcher = require("fuzzy_nvim")
+      local cmp_fix = require("config.cmp_fix")
 
-      matcher:filter("abc", { "aabbcc", "123", "a1b2c" })
+      -- Define snippet logic safely
+      local function snippet_stop()
+        if vim.lsp.util.snippet and vim.lsp.util.snippet.stop then
+          vim.lsp.util.snippet.stop()
+        end
+      end
 
       opts.snippet = {
         expand = function(args)
           vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users
-          -- vim.fn["vsnip#anonymous"](args.body) -- Uncomment for `vsnip` users
         end,
       }
 
@@ -43,7 +44,9 @@ return {
         ["<C-b>"] = cmp.mapping.scroll_docs(-4),
         ["<C-f>"] = cmp.mapping.scroll_docs(4),
         ["<C-Space>"] = cmp.mapping.complete(),
-        ["<C-e>"] = cmp.mapping.abort(),
+        ["<C-e>"] = cmp.mapping(function()
+          snippet_stop()
+        end, { "i", "s" }), -- Trigger snippet_stop on <C-e>
         ["<CR>"] = cmp.mapping.confirm({ select = true }),
       })
 
@@ -51,20 +54,14 @@ return {
         { name = "nvim_lsp" },
         { name = "ultisnips", priority = 900 },
         { name = "buffer", option = { keyword_pattern = [[\k\+]] } },
-        { name = "path" },
-        { name = "tags", keyword_length = 2 },
-        { name = "fuzzy_path" },
+        -- { name = "path" },
+        -- { name = "tags", keyword_length = 2 },
+        -- { name = "fuzzy_path" },
         { name = "vimtex" },
-        { name = "cmp_pandoc" },
-        { name = "copilot", option = { label = "[copilot]" } },
-        { name = "tmux", option = { all_panes = false, label = "[tmux]" } },
+        -- { name = "cmp_pandoc" },
+        -- { name = "copilot", option = { label = "[copilot]" } },
+        -- { name = "tmux", option = { all_panes = false, label = "[tmux]" } },
       })
-
-      -- opts.window = {
-      --   completion = cmp.config.window.bordered(),
-      --   documentation = cmp.config.window.bordered(),
-      -- }
-      --
 
       window = {
         documentation = {
@@ -151,6 +148,7 @@ return {
       lspconfig.tsserver.setup({ capabilities = capabilities })
     end,
   },
+
   {
     "micangl/cmp-vimtex",
     dependencies = { "hrsh7th/nvim-cmp" }, -- Ensure nvim-cmp is loaded first

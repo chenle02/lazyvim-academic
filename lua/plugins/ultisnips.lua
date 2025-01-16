@@ -32,4 +32,29 @@ return {
     "honza/vim-snippets", -- Community snippets
     dependencies = { "SirVer/ultisnips" },
   },
+  {
+    "hrsh7th/nvim-cmp", -- Autocompletion framework
+    dependencies = {
+      "quangnguyen30192/cmp-nvim-ultisnips", -- Ultisnips integration
+    },
+    config = function()
+      local cmp = require("cmp")
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            vim.fn["UltiSnips#Anon"](args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert({
+          ["<C-Space>"] = cmp.mapping.complete(),
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        }),
+        sources = cmp.config.sources({
+          { name = "ultisnips" },
+          { name = "buffer" },
+          { name = "path" },
+        }),
+      })
+    end,
+  },
 }
